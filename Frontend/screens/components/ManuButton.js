@@ -1,12 +1,12 @@
-import React,{useState} from 'react'
-import { StyleSheet, Text, View,TouchableOpacity,Image,ToastAndroid } from 'react-native'
+import React,{ useState,useEffect } from 'react'
+import { StyleSheet, Text, View,TouchableOpacity,Image,ToastAndroid ,Alert} from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import Parse from "parse/react-native";
-import { setStNumber,setLastName,setEmail,setFirstName } from '../../slices/navSlice';
-import { useDispatch } from 'react-redux';
+import { setStNumber,setLastName,setEmail,setFirstName,selectFirstName,selectLastName } from '../../slices/navSlice';
+import { useDispatch,useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-import {GETRequest} from './../../Request'
+import { GETRequest,DELETERequest } from './../../Request'
 
 async function LogOut(navigation) {
     
@@ -16,17 +16,17 @@ async function LogOut(navigation) {
     // })
 }
 
-async function getUserDet(setUserDetails,dispatch) {
+async function getUserDet(setUserDetails,LsetEmail,dispatch) {
 
     let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
 
-
     let x = await GETRequest(`http://192.168.43.128:1100/Auth/Student?id=${userdata[0].student_id}`)
    
-
-    if(userdata[0]?.firstname)  
+    if(userdata[0]?.student_email)  
     {
-        setUserDetails(x.data[0].firstname+" "+userdata[0].lastname )
+
+        setUserDetails(x.data[0].firstname+" "+x.data[0].lastname )
+        LsetEmail(x.data[0].student_email)
         dispatch(setStNumber(x.data[0].studentnumber))
         dispatch(setEmail(x.data[0].student_email))
         dispatch(setFirstName(x.data[0].firstname))
@@ -41,18 +41,45 @@ async function getUserDet(setUserDetails,dispatch) {
 const ManuButton = () => {
     const [manuOpenned, setManuOpenned] = useState(false)
     const [userDetails,setUserDetails] = useState(String())
+    const [Lemail,LsetEmail] = useState(String())
     const dispatch = useDispatch()
+    const fnameChange = useSelector(selectFirstName)
+    const lnameChange = useSelector(selectLastName)
     const navigation = useNavigation()
-    getUserDet(setUserDetails,dispatch)
     const [visible, setVisible] = useState(false);
+ 
+    useEffect(()=>getUserDet(setUserDetails,LsetEmail,dispatch),[fnameChange,lnameChange])
 
     const hideMenu = (button) =>{
         if(button == "L")
         {
             LogOut(navigation)
         }
+        if(button == 'D')
+        {
+            Alert.alert(
+                'Delete Account?',
+                'Are you sure you would like to delete your account?',
+                [
+                  { text: "Cancel", style: 'cancel', onPress: () => {} },
+                  { text: 'Delete',style: 'destructive',onPress: () => {
+                    LogOut(navigation)
+                    deleteAcc()
+                  } },
+                ]
+              );
+            
+        }
+        if(button == 'U')
+        {
+            navigation.navigate("Update",{email:Lemail})
+        }
         setVisible(false)
     };
+
+    const deleteAcc = async ()  => {
+        let result = await DELETERequest(`http://192.168.43.128:1100/Auth/Registration?email=${Lemail}`)
+    }
 
     const showMenu = () => setVisible(true);
 

@@ -172,4 +172,128 @@ Router.post('/',async (req, res, next) => {
 
 });
 
+Router.delete('/',async (req, res, next)=>{
+    if (Object.keys(req.query).length < 1) {
+        res.send({
+            error: true,
+            code: "D001",
+            message: "query parameters were not found"
+        });
+        return
+    }
+
+    if(!req.query.email)
+    { 
+        res.send({
+            error: true,
+            code: "D001",
+            message: "query parameters were not found specifically email"
+        }); 
+    }
+
+    mariadb.query(`DELETE FROM student WHERE student_email = '${req.query.email}'`,(err,result,field)=>{
+        if(err)
+        res.send({
+            error:true,
+            code:"D002",
+            message:err
+        })
+
+        res.send({
+            error:false,
+            data:result
+        })
+
+    })
+})
+
+Router.put('/',async (req,res,next)=>{
+    if (Object.keys(req.query).length < 1) {
+        res.send({
+            error: true,
+            code: "U001",
+            message: "query parameters were not found"
+        });
+        return
+    }
+
+    if(!req.query.email)
+    { 
+        res.send({
+            error: true,
+            code: "U002",
+            message: "query parameters were not found specifically email"
+        }); 
+    }
+
+    if(!req.query.fname)
+    { 
+        res.send({
+            error: true,
+            code: "U003",
+            message: "query parameters were not found specifically fname"
+        }); 
+    }
+
+    if(!req.query.lname)
+    { 
+        res.send({
+            error: true,
+            code: "U004",
+            message: "query parameters were not found specifically lname"
+        }); 
+    }
+
+    mariadb.query(`UPDATE student SET firstname = '${req.query.fname}', lastname = '${req.query.lname}' WHERE student_email = '${req.query.email}'`,(err,result,field)=>{
+        if(err)
+        res.send({
+            error:true,
+            code:"D002",
+            message:err
+        })
+
+        res.send({
+            error:false,
+            data:result
+        })
+
+    })
+})
+
+Router.get('/',async (req,res,next)=>{
+    if (Object.keys(req.query).length < 1) {
+        res.send({
+            error: true,
+            code: "G001",
+            message: "query parameters were not found"
+        });
+        return
+    }
+
+    if(!req.query.email)
+    { 
+        res.send({
+            error: true,
+            code: "G002",
+            message: "query parameters were not found specifically email"
+        }); 
+    }
+
+    mariadb.query(`SELECT * FROM student WHERE student_email = '${req.query.email}'`,(err,result,field)=>{
+        if(err)
+        res.send({
+            error:true,
+            code:"G003",
+            message:err
+        })
+
+        res.send({
+            error:false,
+            data:result
+        })
+
+    })
+
+})
+
 module.exports = Router;

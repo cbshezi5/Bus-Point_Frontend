@@ -16,6 +16,14 @@ const getFonts = () =>
 });
 
 
+function generateRandomNumber() {
+    var minm = 100000;
+    var maxm = 999999;
+    return Math.floor(Math
+    .random() * (maxm - minm + 1)) + minm;
+  }
+  
+
 const doUserSignUp = async function (username,password,fname,lname,setStep,setPasswordErr) {
     // Note that these values come from state variables that we've declared before
     const usernameValue = username.substring(0,username.indexOf("@"));
@@ -92,6 +100,7 @@ const Register = () => {
     const [emailErr, setEmailErr] = useState(String())
     const [passwordErr, setPasswordErr] = useState(String(""))
 
+    const [otpDetails,setOTPDetails] = useState({})
 
     const [step, setStep] = useState(1)
     const [fontsloaded, setFontsLoaded] = useState(false);
@@ -99,7 +108,7 @@ const Register = () => {
 
 
 
-    function toStepTwo()
+    async function toStepTwo()
     {
         if(firstName == "")
         {
@@ -336,8 +345,14 @@ const Register = () => {
             setEmailErr("")
         }
 
+
+        let generated_otp = generateRandomNumber().toString()
+        //sendOTP
         
-       
+        let response = await POSTRequest("http://192.168.43.128/mailman/buspoint.php",{otp:generated_otp,email:email})
+
+        setOTPDetails({otp:generated_otp,email:email})
+
 
         setStep(2)
     }
@@ -345,7 +360,23 @@ const Register = () => {
     function toStepThree()
     {
         Vibration.vibrate(70)
-        doUserSignUp(email,password,firstName,lastName,setStep,setPasswordErr)
+
+        if(password.length < 5 )
+        {
+            setPasswordErr("Passoword is too short")
+            return
+        }
+        else if (password.length > 50 )
+        {
+            setPasswordErr("Passoword is too long")
+            return
+        }
+
+        if(otpDetails.otp == otp)
+            doUserSignUp(email,password,firstName,lastName,setStep,setPasswordErr)
+        else
+            setPasswordErr("OTP is incorrect")
+       
         //setStep(3)
     }
 
@@ -423,7 +454,7 @@ const Register = () => {
                     placeholder="Password"
                     keyboardType = 'visible-password'
                     value={password}
-                    onChangeText={(e)=>{setPassword(e)}}
+                    onChangeText={(e)=>{setPassword(e),setPasswordErr("")}}
                     />
 
                     <TextInput 
@@ -433,7 +464,7 @@ const Register = () => {
                     placeholder="One Time Pin"
                     keyboardType = 'number-pad'
                     value={otp}
-                    onChangeText={(e)=>{setOtp(e)}}
+                    onChangeText={(e)=>{setOtp(e),setPasswordErr("")}}
                     />
 
                     <Text style={{marginLeft:50,color:"red"}}>{passwordErr}</Text>

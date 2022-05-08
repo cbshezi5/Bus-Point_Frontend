@@ -20,6 +20,7 @@ import Register from './screens/Register';
 import ForgotPassword from './screens/ForgotPassword';
 import Loading from './screens/Loading';
 import CurrentTrip from './screens/CurrentTrip';
+import UpdateProfile from './screens/UpdateProfile'
 
 //Admiter Mode
 import Scan from './admiter/Scan'
@@ -107,6 +108,13 @@ export default function App() {
               name = "Scan"
               component={Scan}
 			        options={{
+				        headerShown:false,
+			        }}
+            />
+            <Stack.Screen
+              name = "Update"
+              component={UpdateProfile}
+              options={{
 				        headerShown:false,
 			        }}
             />
