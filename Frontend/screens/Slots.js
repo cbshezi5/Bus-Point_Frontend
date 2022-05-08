@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { selectDestination,selectOrigin } from '../slices/navSlice';
 import { db } from '../firebase-config';
 import { onSnapshot,collection,query,where,addDoc } from "firebase/firestore"
-
+import { GETRequest } from './../Request'
 
 
 const Slots = () => {
@@ -15,7 +15,7 @@ const Slots = () => {
     const [dateTittle,setDateTittle] = useState('Today')
     const origin = useSelector(selectOrigin)
     const destination = useSelector(selectDestination)
-    const [slot, setSlots] = useState([]);
+    const [slot, setSlots] = useState();
     let elementIndex = 0;
 
     let slotID
@@ -27,7 +27,6 @@ const Slots = () => {
 
     function showDatePicker(){
         setShowCalender(true)
-        //addDoc(collection(db,"Slot"),myJSON)
     }
 
     const onChange = (event, selectedDate) => {
@@ -70,58 +69,24 @@ const Slots = () => {
       
       };
 
-      const [requestState, setRequestState] = useState("Loading...")
-      const [secs, setSecs] = useState(0)
-  
-      useEffect(() => {
-         
-          const interval = setInterval(()=>{
+      const [requestState, setRequestState] = useState(undefined)
 
-              if(secs == 0)
-              {
-                  setRequestState("Checking Buses Please wait...")
-              }
+      useEffect(async()=>{
+
+        let day = new Date(date).getDate()
+        if(day < 10) day ="0" + day
+        let month = new Date(date).getMonth() + 1
+        if(month < 10) month = "0" + month
+        let year = new Date(date).getFullYear()
+        let dateCalender = year+"-"+month+"-"+day
+    
+
+        let x = await GETRequest(`http://192.168.43.128:1100/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
+        setSlots(x.data)
+
+      },[date])
+ 
   
-              if(secs == 2)
-              {
-                  setRequestState("Loading...")
-              }
-              if(secs > 3)
-              {
-                  setRequestState("No slot were loading for today or There's no route from your campuses")
-                  return () => clearInterval(interval)
-              }  
-              setSecs(secs + 1)
-          },5000);
-          return () => clearInterval(interval)
-          
-      })
-                 
-        const dateFormated = date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
-      //DB  
-      useEffect(
-        () => 
-        onSnapshot(
-            query(
-                collection(db,"Slot"),
-                where('Date','==', dateFormated),
-                ), 
-                (snapshot) => 
-                    setSlots(
-                        snapshot
-                        .docs
-                        .filter((doc) => doc.get("From") == origin)
-                        .filter((doc) => doc.get("To") == destination)
-                        .map(doc => ({
-                            ...doc.data(), 
-                            id : doc.id
-                        }))
-                    ) 
-                )
-            , 
-        [dateFormated]
-    );
-        
       //DB
     return (
         <View style={{backgroundColor:"white",flex:1,justifyContent:"flex-end"}}>
@@ -167,25 +132,24 @@ const Slots = () => {
             :
                     <ScrollView style={styles.scrollView}>
                     {
-                        slotID = slot[0]?.id,
-                        slotTP = slot[0]?.typeSlot,
-                        slot[0]?.Slot.map((e_slot) => {  
-                                elementIndex = (elementIndex + 1)
-                                return  (<SlotRender busNum={e_slot.Bus} 
-                                                     time={e_slot.Time} 
-                                                     avalSpace={e_slot.Space}  
-                                                     key={e_slot.Time} 
-                                                     date={dateFormated} 
-                                                     id={slotID} 
-                                                     index={elementIndex}
-                                                     slotType={slotTP}/>)               
-                        })        
+                        slot.map((eachSlot)=>{
+                         return (<SlotRender busNum={1} 
+                         time={eachSlot.time} 
+                         avalSpace={eachSlot.seats}  
+                         key={eachSlot.slot_id} 
+                         date={eachSlot.date} 
+                         id={eachSlot.slot_id} 
+                         index={2}
+                         slotType={1}/>)  
+                        })  
                     }
                     </ScrollView>
+
             }
         </View>
     )
 }
+
 
 export default Slots
 

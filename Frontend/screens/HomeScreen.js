@@ -143,7 +143,7 @@ const HomeScreen = () => {
                     {
                         campuses.map((campus) => {
 
-                            return  (<Picker.Item label={campus.Campus_name} value={campus.campus_id} key={campus.campus_id}/>)
+                            return  (<Picker.Item label={campus.Campus_name} value={campus.Campus_name} key={campus.campus_id}/>)
 
                         })
                         
@@ -170,7 +170,7 @@ const HomeScreen = () => {
                     {
                         campuses.map((campus) => {
 
-                            return  (<Picker.Item label={campus.Campus_name} value={campus.campus_id} key={campus.campus_id}/>)
+                            return  (<Picker.Item label={campus.Campus_name} value={campus.Campus_name} key={campus.campus_id}/>)
 
                         })
                     } 

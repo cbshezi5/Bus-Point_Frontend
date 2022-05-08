@@ -24,7 +24,7 @@ const SlotRender = (props) => {
 
     const [dayCur,setDayCur] = useState(current.getUTCDate()+"-"+(current.getMonth()+1)+"-"+current.getFullYear())
   
-    const [message, setMessage] = useState(props.busNum + " bus depurting");
+    const [message, setMessage] = useState("Bus depurting");
     const [seatMessage, setSeatMessage] = useState() ;
  
 
@@ -34,10 +34,11 @@ const SlotRender = (props) => {
     
         useEffect(async ()  => {
 
-
-                    if(props.avalSpace == 0)
+               
+                    if(props.avalSpace < 1)
                     {
-                        setSeatMessage("No seat left u can book as a temp")
+                        setSeatMessage("No seat left")
+                        setDisableColor("grey");
                     }
 
                     if(props.avalSpace > 0 && props.avalSpace < 11)
@@ -60,7 +61,7 @@ const SlotRender = (props) => {
                         setSeatMessage("Temp book currently  ⚠️");
                         setDisableColor("grey");
                         isTemp = true;
-                        setMessage(props.busNum + " bus depurting");
+                        setMessage("Bus depurting");
                         return
                         
                     }
@@ -73,16 +74,16 @@ const SlotRender = (props) => {
                         {
                             setDisableColor("lightgrey")
                             setDisabledVal(true)
-                            setMessage("Bus already gone")
+                            setMessage("Bus Departed")
                             setSeatMessage("Bus is already gone slot expired")
                             return
                         }
                         else
                         {
-                            setDisableColor("black")   //Problem
-                            setDisabledVal(false)
-                            setMessage(props.busNum + " bus depurting")
-                            setSeatMessage("Early bird catches the worm")
+                            // setDisableColor("black")   //Problem
+                            // setDisabledVal(false)
+                            // setMessage(props.busNum + "Bus depurting")
+                            // setSeatMessage("Early bird catches the worm")
                         }
 
                         if((hrTrp - hrCur === 1) && props.date == dayCur)
@@ -130,7 +131,7 @@ const SlotRender = (props) => {
                             
                             setDisableColor("black")   //Problem
                             setDisabledVal(false)
-                            setMessage(props.busNum + " bus depurting")
+                            setMessage(" Bus depurting")
                             setSeatMessage("Early bird catches the worm")  
                         }
                         //Differnt state of 15min
@@ -197,7 +198,7 @@ const SlotRender = (props) => {
     return ( 
             <View style={{marginBottom:20}}>
                 <TouchableOpacity style={[styles.button,{backgroundColor:disableColor}]} onPress={()=>{timeClicked()}} disabled={disabledVal}>
-                    <Text style={styles.btnText}>{props.time} • {props.avalSpace} avaliable spaces</Text>
+                    <Text style={styles.btnText}>{props.time} • {props.avalSpace} avaliable seats</Text>
                 </TouchableOpacity>
                 <Text style={styles.busCount}>{message}</Text>
                 <Text style={styles.capacity}>{seatMessage}</Text>
