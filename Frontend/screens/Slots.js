@@ -133,14 +133,14 @@ const Slots = () => {
                     <ScrollView style={styles.scrollView}>
                     {
                         slot.map((eachSlot)=>{
-                         return (<SlotRender busNum={1} 
-                         time={eachSlot.time} 
-                         avalSpace={eachSlot.seats}  
-                         key={eachSlot.slot_id} 
-                         date={eachSlot.date} 
-                         id={eachSlot.slot_id} 
-                         index={2}
-                         slotType={1}/>)  
+                            return (<SlotRender busNum={1} 
+                            time={eachSlot.time} 
+                            avalSpace={eachSlot.seats}  
+                            key={eachSlot.slot_id} 
+                            date={eachSlot.date} 
+                            id={eachSlot.slot_id} 
+                            index={2}
+                            slotType={1}/>)  
                         })  
                     }
                     </ScrollView>
