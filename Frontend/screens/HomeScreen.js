@@ -10,7 +10,7 @@ import { GETRequest } from './../Request'
 //Homemade Libraries
 import Header from './components/Header';
 
-
+import { HOSTNAME } from '../globals'
 
 //Custome Libraries
 import { useNavigation } from '@react-navigation/native';
@@ -66,7 +66,7 @@ const HomeScreen = () => {
 
 
         useEffect(async ()=>{
-            let x =  await GETRequest('http://192.168.43.128:1100/Content/Campus')
+            let x =  await GETRequest(`http://${HOSTNAME}:1100/Content/Campus`)
             setCampuses(x?.data)
         },[])
             

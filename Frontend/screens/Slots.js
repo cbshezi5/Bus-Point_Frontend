@@ -7,7 +7,7 @@ import { selectDestination,selectOrigin } from '../slices/navSlice';
 import { db } from '../firebase-config';
 import { onSnapshot,collection,query,where,addDoc } from "firebase/firestore"
 import { GETRequest } from './../Request'
-
+import { HOSTNAME } from '../globals'
 
 const Slots = () => {
     const [showCalender, setShowCalender] = useState(false)
@@ -81,7 +81,7 @@ const Slots = () => {
         let dateCalender = year+"-"+month+"-"+day
     
 
-        let x = await GETRequest(`http://192.168.43.128:1100/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
+        let x = await GETRequest(`http://${HOSTNAME}:1100/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
         setSlots(x.data)
 
       },[date])

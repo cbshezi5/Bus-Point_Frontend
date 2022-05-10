@@ -7,7 +7,7 @@ import { useDispatch,useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 import { GETRequest,DELETERequest } from './../../Request'
-
+import { HOSTNAME } from '../../globals'
 async function LogOut(navigation) {
     
     // await AsyncStorage.removeItem("@user_data")
@@ -20,7 +20,7 @@ async function getUserDet(setUserDetails,LsetEmail,dispatch) {
 
     let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
 
-    let x = await GETRequest(`http://192.168.43.128:1100/Auth/Student?id=${userdata[0].student_id}`)
+    let x = await GETRequest(`http://${HOSTNAME}:1100/Auth/Student?id=${userdata[0].student_id}`)
    
     if(userdata[0]?.student_email)  
     {
@@ -78,7 +78,7 @@ const ManuButton = () => {
     };
 
     const deleteAcc = async ()  => {
-        let result = await DELETERequest(`http://192.168.43.128:1100/Auth/Registration?email=${Lemail}`)
+        let result = await DELETERequest(`http://${HOSTNAME}:1100/Auth/Registration?email=${Lemail}`)
     }
 
     const showMenu = () => setVisible(true);
