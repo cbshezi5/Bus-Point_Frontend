@@ -4,8 +4,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import SlotRender from './components/SlotRender';
 import { useSelector } from 'react-redux';
 import { selectDestination,selectOrigin } from '../slices/navSlice';
-import { db } from '../firebase-config';
-import { onSnapshot,collection,query,where,addDoc } from "firebase/firestore"
 import { GETRequest } from './../Request'
 import { HOSTNAME } from '../globals'
 
@@ -15,11 +13,8 @@ const Slots = () => {
     const [dateTittle,setDateTittle] = useState('Today')
     const origin = useSelector(selectOrigin)
     const destination = useSelector(selectDestination)
-    const [slot, setSlots] = useState();
-    let elementIndex = 0;
+    const [slot, setSlots] = useState([]);
 
-    let slotID
-    let slotTP
     
     let dateMax = new Date(); 
     let current = new Date();
@@ -83,6 +78,7 @@ const Slots = () => {
 
         let x = await GETRequest(`http://${HOSTNAME}:1100/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
         setSlots(x.data)
+        setRequestState("No slots found")
 
       },[date])
  
@@ -144,7 +140,6 @@ const Slots = () => {
                         })  
                     }
                     </ScrollView>
-
             }
         </View>
     )
