@@ -69,7 +69,7 @@ const Slots = () => {
       
       };
 
-      const [requestState, setRequestState] = useState(undefined)
+      const [requestState, setRequestState] = useState("Loading...")
 
       useEffect(async()=>{
 
