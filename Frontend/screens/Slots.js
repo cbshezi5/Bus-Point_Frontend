@@ -76,7 +76,7 @@ const Slots = () => {
         let dateCalender = year+"-"+month+"-"+day
     
 
-        let x = await GETRequest(`http://${HOSTNAME}:1100/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
+        let x = await GETRequest(`${HOSTNAME}/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
         setSlots(x.data)
         setRequestState("No slots found")
 

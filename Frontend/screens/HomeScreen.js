@@ -66,7 +66,7 @@ const HomeScreen = () => {
 
 
         useEffect(async ()=>{
-            let x =  await GETRequest(`http://${HOSTNAME}:1100/Content/Campus`)
+            let x =  await GETRequest(`${HOSTNAME}/Content/Campus`)
             setCampuses(x?.data)
         },[])
             

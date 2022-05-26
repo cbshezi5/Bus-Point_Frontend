@@ -14,7 +14,7 @@ const UpdateProfile = (props) => {
 
     useEffect(async()=>{
 
-        let response = await GETRequest(`http://${HOSTNAME}:1100/Auth/Registration?email=${props.route.params.email}`)
+        let response = await GETRequest(`${HOSTNAME}/Auth/Registration?email=${props.route.params.email}`)
         setFname(response.data[0].firstname)
         setLname(response.data[0].lastname)
 
@@ -25,7 +25,7 @@ const UpdateProfile = (props) => {
 
 
     const update = async () =>{
-        let response = await PUTRequest(`http://${HOSTNAME}:1100/Auth/Registration?email=${props.route.params.email}&fname=${fname}&lname=${lname}`,{})
+        let response = await PUTRequest(`${HOSTNAME}/Auth/Registration?email=${props.route.params.email}&fname=${fname}&lname=${lname}`,{})
         dispatch(setFirstName(fname))
         dispatch(setLastName(lname))
         navigation.navigate("HomeScreen")

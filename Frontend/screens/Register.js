@@ -31,7 +31,7 @@ const doUserSignUp = async function (username,password,fname,lname,setStep,setPa
     const emailValue = username;
 
     //localhost request
-    let response = await POSTRequest(`http://${HOSTNAME}:1100/Auth/Registration`,{
+    let response = await POSTRequest(`${HOSTNAME}/Auth/Registration`,{
     fname: fname,
     lname: lname,
     email:emailValue,
@@ -349,7 +349,7 @@ const Register = () => {
         let generated_otp = generateRandomNumber().toString()
         //sendOTP
         
-        let response = await POSTRequest(`http://${HOSTNAME}/mailman/buspoint.php`,{otp:generated_otp,email:email})
+        let response = await POSTRequest(`http://192.168.56.42/mailman/buspoint.php`,{otp:generated_otp,email:email})
 
         setOTPDetails({otp:generated_otp,email:email})
 

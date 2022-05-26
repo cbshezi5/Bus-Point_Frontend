@@ -125,7 +125,7 @@ const Login = () => {
     const doUserLogIn = async function () {
         // Note that these values come from state variables that we've declared before
         
-        let response = await  POSTRequest(`http://${HOSTNAME}:1100/Auth/Login`,{"email":emailOrStudentNo,"password":password})
+        let response = await  POSTRequest(`${HOSTNAME}/Auth/Login`,{"email":emailOrStudentNo,"password":password})
 
        
         if(response?.error)
