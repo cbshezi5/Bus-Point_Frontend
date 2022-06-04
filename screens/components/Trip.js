@@ -1,99 +1,44 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import { StyleSheet, Text, View,TouchableOpacity,Alert,Vibration,ToastAndroid } from 'react-native'
-import { doc,deleteDoc,updateDoc ,getDocs,query,collection} from "firebase/firestore"
-import { db } from '../../firebase-config';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux'
 import { setTime } from '../../slices/navSlice';
-import StatUpdate from './UpdateStats'
+
 import * as Notifications from 'expo-notifications';
+import { DELETERequest} from './../../Request'
+import { HOSTNAME } from '../../globals'
 
 
 
 
-async function updateSlot(date,time,depu,dest,statu)
+
+async function deleteTrip(id,setStatus)
 {
-    let tripSlotid;
-    let element;
-  
-    if(statu == "Active")
-    {
-        await getDocs(
-            query(collection(db,"Slot")))
-            .then((data)=>
-            {tripSlotid = data.docs
-            .filter((doc) => doc.get("Date") == date)
-            .filter((doc) => doc.get("From") == depu)
-            .filter((doc) => doc.get("To") == dest)
-            .map(data =>({ id : data.id,
-                        Slot : data.get("Slot")}))
-        })
-
-
-        for (let index = 0; index < tripSlotid[0].Slot.length; index++) {
-            if(tripSlotid[0].Slot[index].Time == time)
-            {
-                element = index;
-                break;
-            }
-        }
-
-        let newSlot = tripSlotid[0].Slot
-
-        newSlot[element].Space = newSlot[element].Space + 1
-
-
-        const slotDoc = doc(db,"Slot",tripSlotid[0].id)
     
-        const newVal = {"Slot": newSlot }                           
-                  
-        await updateDoc(slotDoc,newVal)
-        .catch((error)=>{console.log(error.message)})
-    }
-}
-
-
-async function deleteTrip(id,date,time,depu,dest,statu)
-{
-
     Vibration.vibrate(70)
     Alert.alert(
         'Warning',
         'Are you sure you would like to delete the Trip?',
         [
           { text: "Cancel", style: 'cancel', onPress: () => {return} },
-          { text: 'Yes',style: 'destructive',onPress: () => {delConfirmed(id,date,time,depu,dest,statu)} },
+          { text: 'Yes',style: 'destructive',onPress: () => {delConfirmed(id,setStatus)} },
         ]
       );   
 }
 
-async function delConfirmed(id,date,time,depu,dest,statu)
+async function delConfirmed(id,setStatus)
 {
-
     let notifKeys
-    await getDocs(
-        query(collection(db,"Trip")))
-        .then((data)=>
-        {notifKeys = data.docs
-        .filter((doc) => doc.id == id)
-        .map(data =>(data.get("NotificationKeys")))
-    })
+   
+    let x = await DELETERequest(`${HOSTNAME}/Student/GetBooked?Busid=${id}`)
 
-  
-    for (let index = 0; index < 4; index++) {
-        await Notifications.cancelScheduledNotificationAsync(notifKeys[0][index])
-        .catch((error) => {console.log(error.message)})
+   
+    if(!x.error)
+    {
+        setStatus("Deleted")
+        ToastAndroid.show("Trip deleted successfully",500)
     }
-
-    const tripDoc = doc(db,"Trip",id)
-    await deleteDoc(tripDoc)
-    .catch((error)=>{
-        console.log(error.message)
-        return;
-    })
-    updateSlot(date,time,depu,dest,statu)
-    StatUpdate("deleted_trips")
-    ToastAndroid.show("Trip deleted successfully",500)
+        
 }
 
 
@@ -101,12 +46,13 @@ const Trip = (props) => {
 
     const navigation = useNavigation()
     const dispatch = useDispatch()
+    const [status,setStatus] = useState(props.Status)
 
     async function currentTripPress()
     {
         
         navigation.navigate("QRCode")
-        if(props.temp)
+        if(props.temp == 'T')
         {
             dispatch(setTime({"time" : props.time,"type" : "temp"}))
         }else{
@@ -114,11 +60,40 @@ const Trip = (props) => {
         }
         
     }
+    const day = new Date().getDate();
+    const month = new Date().getMonth()+1;
+    const year = new Date().getFullYear();
+    const hour = new Date().getHours();
+    const min = new Date().getMinutes();
+    const busHr = String(props.time).substring(0,String(props.time).indexOf(":"))
+    const busMin = String(props.time).substring(String(props.time).indexOf(":")+1,String(props.time).length)
 
+    if((new Date(props.date).getDate()) < day || (new Date(props.date).getMonth()+1) < month || (new Date(props.date).getFullYear()) < year)
+    {
+        useEffect(()=>setStatus("Expired"))
+    }
+
+    if((new Date(props.date).getDate()) == day || (new Date(props.date).getMonth()+1) == month || (new Date(props.date).getFullYear()) == year)
+    {
+        if(Number(busHr) < hour)
+        {
+            useEffect(()=>setStatus("Expired"))
+        }
+        else if(Number(busHr) == hour && Number(busMin) < min)
+        {
+            useEffect(()=>setStatus("Expired"))
+        }
+        else if(Number(busHr) == hour && (Number(busMin)-5) <= min)
+        {
+            useEffect(()=>setStatus("Departing"))
+        }
+        
+    }
+   
 
     return (    
         <View style={styles.box}>
-            <TouchableOpacity onLongPress={()=>{deleteTrip(props.id,props.date,props.time,props.depu,props.dest,props.Status)}} onPress={()=>{currentTripPress()}}>
+            <TouchableOpacity onLongPress={()=>{deleteTrip(props.id,setStatus)}} onPress={()=>{currentTripPress()}}>
             <Text style={styles.date}>Date : {new Date(props.date).getDate() +"/"+(new Date(props.date).getMonth()+1)+"/"+new Date(props.date).getFullYear() }
             {
                 props.temp == 'T'?
@@ -135,22 +110,22 @@ const Trip = (props) => {
             <Text style={[styles.date,styles.details]}>Destination : {props.dest}</Text>
             <Text style={[styles.date,styles.details,{fontSize:20}]}>Time : {props.time}</Text>
             {
-                props.Status == "Active" ?
+                status == "Active" ?
                 (
-                    <Text style={[styles.date,styles.details,{fontSize:20}]}>Status : <Text style={{color:"green"}}>{props.Status}</Text> </Text>
+                    <Text style={[styles.date,styles.details,{fontSize:20}]}>Status : <Text style={{color:"green"}}>{status}</Text> </Text>
                 )
                 :
-                props.Status == "Expired" ?
+                status == "Expired" || status == "Deleted"?
                 (
-                    <Text style={[styles.date,styles.details,{fontSize:20}]}>Status : <Text style={{color:"red"}}>{props.Status}</Text></Text>
+                    <Text style={[styles.date,styles.details,{fontSize:20}]}>Status : <Text style={{color:"red"}}>{status}</Text></Text>
                 )
                 :
-                <Text style={[styles.date,styles.details,{fontSize:20}]}>Status : <Text style={{color:"orange"}}>{props.Status}</Text></Text>
+                <Text style={[styles.date,styles.details,{fontSize:20}]}>Status : <Text style={{color:"orange"}}>{status}</Text></Text>
                 
             }
             </TouchableOpacity>
             <Text style={[styles.date,styles.details,{alignSelf:"center",marginTop:30,paddingLeft:5,paddingRight:20,textAlign:"center"}]} >
-                The trip will expire 5min before the depureture time. Press and hold to delete the trip
+                The booked token will expire after departure time of the bus
             </Text>
         </View >
     )

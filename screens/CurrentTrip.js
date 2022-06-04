@@ -10,45 +10,17 @@ import { GETRequest} from './../Request'
 import { HOSTNAME } from '../globals'
 
 const CurrentTrip = ()  => {
-    // const studentNumber = useSelector(selectStNumber)
+    
     const [trip, setTrip] = useState([])
-
+    const stNumber = useSelector(selectStNumber)
     
     useEffect(async()=>{
         let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
         let x = await GETRequest(`${HOSTNAME}/Student/GetBooked?id=${userdata[0].Studentid}`)
-        console.log(x.data)
+     
         setTrip(x.data)
-    },[])
+    },[stNumber])
     
-
-    
-    
-    // if(studentNumber != "null")
-    // {
-    //     useEffect(
-    //         () => 
-    //         onSnapshot(
-    //             query(
-    //                 collection(db,"Trip"),
-    //                 orderBy("No","desc"),
-    //                 ), 
-    //                 (snapshot) => 
-    //                     setTrip(
-    //                         snapshot
-    //                         .docs
-    //                         .filter((doc)=>doc.get("StudentNumber") == studentNumber)
-    //                         .map(doc => ({
-    //                             ...doc.data(),  
-    //                             id : doc.id
-    //                         }))
-    //                     ) 
-    //                 )
-    //             , 
-    //         []
-    //     );
-
-    // }
 
     return (
         <View style={styles.tittleHeard}>
