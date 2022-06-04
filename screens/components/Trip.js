@@ -119,9 +119,9 @@ const Trip = (props) => {
     return (    
         <View style={styles.box}>
             <TouchableOpacity onLongPress={()=>{deleteTrip(props.id,props.date,props.time,props.depu,props.dest,props.Status)}} onPress={()=>{currentTripPress()}}>
-            <Text style={styles.date}>Date : {props.date}
+            <Text style={styles.date}>Date : {new Date(props.date).getDate() +"/"+(new Date(props.date).getMonth()+1)+"/"+new Date(props.date).getFullYear() }
             {
-                props.temp?
+                props.temp == 'T'?
                 (
                     <Text style={{fontSize:13,color:"grey"}}>                               Temporally Trip</Text>
                 )

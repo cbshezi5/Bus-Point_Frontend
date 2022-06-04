@@ -25,7 +25,6 @@ async function getUserDet(setUserDetails,LsetEmail,dispatch) {
    
     if(userdata[0]?.Student_Email)  
     {
-        console.log(x.data[0])
         setUserDetails(x.data[0].Firstname+" "+x.data[0].Lastname)
         LsetEmail(x.data[0].Student_Email)
         dispatch(setStNumber(x.data[0].StudentNumber))

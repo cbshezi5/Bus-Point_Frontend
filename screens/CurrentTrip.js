@@ -5,41 +5,50 @@ import { selectStNumber } from '../slices/navSlice'
 import { useSelector } from 'react-redux'
 import { db } from '../firebase-config';
 import { onSnapshot,collection,query,where,orderBy} from "firebase/firestore"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GETRequest} from './../Request'
+import { HOSTNAME } from '../globals'
 
-
-
-
-
-const CurrentTrip = () => {
-    const studentNumber = useSelector(selectStNumber)
+const CurrentTrip = ()  => {
+    // const studentNumber = useSelector(selectStNumber)
     const [trip, setTrip] = useState([])
 
     
-    if(studentNumber != "null")
-    {
-        useEffect(
-            () => 
-            onSnapshot(
-                query(
-                    collection(db,"Trip"),
-                    orderBy("No","desc"),
-                    ), 
-                    (snapshot) => 
-                        setTrip(
-                            snapshot
-                            .docs
-                            .filter((doc)=>doc.get("StudentNumber") == studentNumber)
-                            .map(doc => ({
-                                ...doc.data(),  
-                                id : doc.id
-                            }))
-                        ) 
-                    )
-                , 
-            []
-        );
+    useEffect(async()=>{
+        let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
+        let x = await GETRequest(`${HOSTNAME}/Student/GetBooked?id=${userdata[0].Studentid}`)
+        console.log(x.data)
+        setTrip(x.data)
+    },[])
+    
 
-    }
+    
+    
+    // if(studentNumber != "null")
+    // {
+    //     useEffect(
+    //         () => 
+    //         onSnapshot(
+    //             query(
+    //                 collection(db,"Trip"),
+    //                 orderBy("No","desc"),
+    //                 ), 
+    //                 (snapshot) => 
+    //                     setTrip(
+    //                         snapshot
+    //                         .docs
+    //                         .filter((doc)=>doc.get("StudentNumber") == studentNumber)
+    //                         .map(doc => ({
+    //                             ...doc.data(),  
+    //                             id : doc.id
+    //                         }))
+    //                     ) 
+    //                 )
+    //             , 
+    //         []
+    //     );
+
+    // }
 
     return (
         <View style={styles.tittleHeard}>
@@ -55,9 +64,9 @@ const CurrentTrip = () => {
                             dest={tripJson.To} 
                             depu={tripJson.From} 
                             time={tripJson.Time} 
-                            key={tripJson.id}
+                            key={tripJson.Busid}
                             Status={tripJson.Status} 
-                            id={tripJson.id}
+                            id={tripJson.Busid}
                             temp ={tripJson.Temporally}/>)
                     })
                 }
