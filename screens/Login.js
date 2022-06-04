@@ -50,6 +50,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(null)
     const [verifyShow, setVerifyShow] = useState(Boolean(false))
     const [isChecked, setChecked] = useState(false);
+    const [loading, setLoading]  = useState(false);
 
     //BLOCK GO BACK
      
@@ -79,18 +80,10 @@ const Login = () => {
     );
 
 
-
-
-
-
-
-    //BLOCK GO BACK
-
-
-    const doUserQuery = async function () {
-
+      
+    const doUserLogIn = async function () {
         
-
+        // Note that these values come from state variables that we've declared before
         //Handing Human Error
         if(emailOrStudentNo == "")
         {
@@ -107,30 +100,29 @@ const Login = () => {
         {
             ToastAndroid.show("Empty password not allowed",500)
             setPasswordErr("*Field is mandetory")
+          
             return
         }
         else
         {
             setPasswordErr("")
         }
-
-        //Handling Humam Error input
-
-
-        
-      };
-
-
-      
-    const doUserLogIn = async function () {
-        // Note that these values come from state variables that we've declared before
+        setLoading(true)
         
         let response = await  POSTRequest(`${HOSTNAME}/Auth/Login`,{"email":emailOrStudentNo,"password":password})
 
-       
+        setLoading(false)
         if(response?.error)
         {
-            setEmailOrStudentNoErr(response.message)
+            
+            if(response.message == "Password is incorrect")
+            {
+                setPasswordErr(response.message)
+            }
+            else
+            {
+                setEmailOrStudentNoErr(response.message)
+            }
         }
         else
         {
@@ -150,7 +142,8 @@ const Login = () => {
                     navigation.navigate("HomeScreen")
                 }   
                 
-        }   
+        } 
+        setLoading(false)  
     };
 
     
@@ -217,9 +210,21 @@ const Login = () => {
                 color="black"
                 />
                 <Text style={{marginTop:-20,marginLeft:70}}>Auto login</Text>
-                <TouchableOpacity style={[styles.instr,styles.btn]} onPress={()=>{doUserQuery(),doUserLogIn()}}>
-                    <Text style={{alignSelf:"center",fontSize:18}}>Login</Text>
-                </TouchableOpacity>
+          
+                    
+                    {
+                        loading?
+                        (
+                            <TouchableOpacity style={[styles.instr,styles.btn,{backgroundColor:"black"}]}>
+                            <Image style={[styles.passwordShowIcon,{alignSelf:"center"}]} source={require('../assets/R.gif')}  />
+                            </TouchableOpacity>
+                        )
+                        :
+                        <TouchableOpacity style={[styles.instr,styles.btn]} onPress={()=>{doUserLogIn()}}>
+                        <Text style={{alignSelf:"center",fontSize:18}}>Login</Text>
+                        </TouchableOpacity>
+                    }
+                
                 
                 <Text style={styles.instr}>I don't have an account</Text> 
 

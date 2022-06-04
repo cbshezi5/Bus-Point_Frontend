@@ -19,18 +19,19 @@ async function LogOut(navigation) {
 async function getUserDet(setUserDetails,LsetEmail,dispatch) {
 
     let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
+    
 
-    let x = await GETRequest(`${HOSTNAME}/Auth/Student?id=${userdata[0].student_id}`)
+    let x = await GETRequest(`${HOSTNAME}/Auth/Student?id=${userdata[0].Studentid}`)
    
-    if(userdata[0]?.student_email)  
+    if(userdata[0]?.Student_Email)  
     {
-
-        setUserDetails(x.data[0].firstname+" "+x.data[0].lastname )
-        LsetEmail(x.data[0].student_email)
-        dispatch(setStNumber(x.data[0].studentnumber))
-        dispatch(setEmail(x.data[0].student_email))
-        dispatch(setFirstName(x.data[0].firstname))
-        dispatch(setLastName(x.data[0].lastname))
+        console.log(x.data[0])
+        setUserDetails(x.data[0].Firstname+" "+x.data[0].Lastname)
+        LsetEmail(x.data[0].Student_Email)
+        dispatch(setStNumber(x.data[0].StudentNumber))
+        dispatch(setEmail(x.data[0].Student_Email))
+        dispatch(setFirstName(x.data[0].Firstname))
+        dispatch(setLastName(x.data[0].Lastname))
     }  
     
     

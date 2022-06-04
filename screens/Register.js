@@ -3,9 +3,9 @@ import { StyleSheet, Text, View,TextInput,ToastAndroid,Vibration,TouchableOpacit
 import * as Font from 'expo-font'
 import Apploading from "expo-app-loading";
 import { useNavigation } from '@react-navigation/core';
-import { POSTRequest } from '../Request'
+import { POSTRequest,GETRequest } from '../Request'
 import { HOSTNAME } from '../globals'
-
+import { Picker } from '@react-native-picker/picker';
 
 
 
@@ -24,7 +24,7 @@ function generateRandomNumber() {
   }
   
 
-const doUserSignUp = async function (username,password,fname,lname,setStep,setPasswordErr) {
+const doUserSignUp = async function (username,password,fname,lname,setStep,setPasswordErr,selectedCamp,idNumber) {
     // Note that these values come from state variables that we've declared before
     const usernameValue = username.substring(0,username.indexOf("@"));
     const passwordValue = password;
@@ -35,8 +35,9 @@ const doUserSignUp = async function (username,password,fname,lname,setStep,setPa
     fname: fname,
     lname: lname,
     email:emailValue,
+    campus:selectedCamp,
+    idnum:idNumber,
     password:passwordValue,
-    role:"S",
     studNum:usernameValue})
 
     if(!response?.error)
@@ -85,28 +86,39 @@ function anyNumber(phrase) {
     return false
 }
 
-
+function selectFunction(setSelectedCamp,valueSelected) { 
+    setSelectedCamp(valueSelected)
+}
 
 const Register = () => {
     //Values
     const [firstName, setFirstName] = useState(String())
     const [lastName, setLastName] = useState(String())
     const [email, setEmail] = useState(String())
+    const [idNumber, setidNumber] = useState(String())
     const [password, setPassword] = useState(String())
     const [otp,setOtp]=useState(String())
     //Error Messeging
     const [firstNameErr, setFirstNameErr] = useState(String())
     const [lastNameErr, setLastNameErr] = useState(String())
     const [emailErr, setEmailErr] = useState(String())
+    const [idNumberErr, setidNumberErr] = useState(String())
     const [passwordErr, setPasswordErr] = useState(String(""))
+    const [selectedCamp,setSelectedCamp] = useState(String(""))
 
     const [otpDetails,setOTPDetails] = useState({})
+    const [campuses, setCampuses] = useState([]);
 
     const [step, setStep] = useState(1)
     const [fontsloaded, setFontsLoaded] = useState(false);
     const navigation = useNavigation()
 
 
+    useEffect(async ()=>{
+        let x =  await GETRequest(`${HOSTNAME}/Content/Campus`)
+        console.log(x)
+        setCampuses(x?.data)
+    },[])
 
     async function toStepTwo()
     {
@@ -345,12 +357,23 @@ const Register = () => {
             setEmailErr("")
         }
 
+        if(idNumber.length < 13 || idNumber.indexOf(" ") > 1 && idNumber.indexOf(" ") < idNumber.length - 1)
+        {
+            ToastAndroid.show("Field is checked with SA ID number rules regulation",500)
+            setidNumberErr("Invalid ID number")
+            return
+        }
+        else
+        {
+            setidNumberErr("")
+        }
+
 
         let generated_otp = generateRandomNumber().toString()
-        //sendOTP
         
-        let response = await POSTRequest(`http://192.168.56.42/mailman/buspoint.php`,{otp:generated_otp,email:email})
+        let response = await GETRequest(`${HOSTNAME}/sendEmail?email=${email}&otp=${generated_otp}`)
 
+       
         setOTPDetails({otp:generated_otp,email:email})
 
 
@@ -360,20 +383,27 @@ const Register = () => {
     function toStepThree()
     {
         Vibration.vibrate(70)
+        console.log(selectedCamp)
+        if(selectedCamp == "default")
+        {
+            setPasswordErr("Select a campus")
+            ToastAndroid.show("Select a campus you attending in",500)
+            return
+        }
 
         if(password.length < 5 )
         {
-            setPasswordErr("Passoword is too short")
+            setPasswordErr("Password is too short")
             return
         }
         else if (password.length > 50 )
         {
-            setPasswordErr("Passoword is too long")
+            setPasswordErr("Password is too long")
             return
         }
 
         if(otpDetails.otp == otp)
-            doUserSignUp(email,password,firstName,lastName,setStep,setPasswordErr)
+            doUserSignUp(email,password,firstName,lastName,setStep,setPasswordErr,selectedCamp,idNumber)
         else
             setPasswordErr("OTP is incorrect")
        
@@ -390,7 +420,7 @@ const Register = () => {
     return (
         <View style={{flex:1,backgroundColor:"white",justifyContent:"center"}}>
             <Text style={{alignSelf:"center",marginTop:100,fontSize:53}}>Register</Text>
-            <Text style={{alignSelf:"center",marginTop:10,marginBottom:100}}>Create your new account</Text>
+            <Text style={{alignSelf:"center",marginTop:10,marginBottom:10}}>Create your new account</Text>
             
             {
                 step == 1 ?(
@@ -435,6 +465,20 @@ const Register = () => {
                     />
                     <Text style={{marginLeft:53,color:"red",marginBottom:-10}}>{emailErr}</Text>
 
+                    <TextInput 
+                    style={styles.input} 
+                    numberOfLines={1}
+                    multiline={false}
+                    placeholder="Enter your ID number"
+                    textContentType="emailAddress"
+                    maxLength={13}
+                    autoCapitalize="none"
+                    keyboardType='number-pad'
+                    value ={idNumber}
+                    onChangeText={(e)=>{setidNumber(e)}}
+                    />
+                    <Text style={{marginLeft:53,color:"red",marginBottom:-10}}>{idNumberErr}</Text>
+
                     
                     <TouchableOpacity style={{alignSelf:"center",marginTop:60}} onPress={()=>{toStepTwo()}}>
                         <Text style={[{fontSize:20},styles.next]}>Next</Text>
@@ -445,14 +489,34 @@ const Register = () => {
                 step == 2 ?
                 (
                     <View >
-
                     <Text style={[{fontSize:15},styles.next]}>Email was sent to {email}</Text>
+
+                    <Picker
+                     style={[styles.pickers,{width:300}]}
+                    selectedValue={selectedCamp}
+                    onValueChange={(itemValue, itemIndex) =>
+                        selectFunction(setSelectedCamp,itemValue)
+                    }
+                    
+                    
+                    >
+                        <Picker.Item label="Select a campus" value="default" />
+                        <Picker.Item label={"Soshanguve South Campus"} value={"Soshanguve South Campus"} key={1}/>
+                        <Picker.Item label={"Soshanguve North Campus"} value={"Soshanguve North Campus"} key={2}/>
+                        <Picker.Item label={"Arcadia Campus"} value={"Arcadia Campus"} key={3}/>
+                        <Picker.Item label={"Pretoria Campus"} value={"Pretoria Campus"} key={4}/>
+                        <Picker.Item label={"Art Campus"} value={"Art Campus"} key={5}/>
+                        <Picker.Item label={"Polokwane Campus"} value={"Polokwane Campus"} key={6}/>
+                        <Picker.Item label={"Garankuwe Campus"} value={"Garankuwe Campus"} key={7}/>
+                    </Picker>
+
                     <TextInput 
                     style={styles.input} 
                     numberOfLines={1}
                     multiline={false}
                     placeholder="Password"
                     keyboardType = 'visible-password'
+                    maxLength={50}
                     value={password}
                     onChangeText={(e)=>{setPassword(e),setPasswordErr("")}}
                     />
@@ -461,6 +525,7 @@ const Register = () => {
                     style={styles.input} 
                     numberOfLines={1}
                     multiline={false}
+                    maxLength={6}
                     placeholder="One Time Pin"
                     keyboardType = 'number-pad'
                     value={otp}
@@ -481,7 +546,7 @@ const Register = () => {
                 (
                     <View>
                         <Text style={{alignSelf:"center",marginBottom:83,marginTop:-83}}>Click the bus below to proceed</Text>
-                        <Text style={{paddingLeft:35,paddingRight:35,marginTop:-74,marginBottom:73}}>Verify your email address there should be a email with a link to verify click it's.</Text>
+                        <Text style={{paddingLeft:35,paddingRight:35,marginTop:-74,marginBottom:73}}></Text>
 
                     <View style={styles.icon}>
                         <TouchableOpacity onPress={()=>{navigation.navigate("Login")}}>
@@ -546,5 +611,13 @@ const styles = StyleSheet.create({
         marginTop:0,
         justifyContent:"center",
         borderRadius:100
+    },
+    pickers:
+    {
+        backgroundColor:'whitesmoke',
+        width:330,
+        alignSelf:"center",
+        marginTop:23,
+        color:"black"
     },
 })

@@ -15,8 +15,9 @@ const UpdateProfile = (props) => {
     useEffect(async()=>{
 
         let response = await GETRequest(`${HOSTNAME}/Auth/Registration?email=${props.route.params.email}`)
-        setFname(response.data[0].firstname)
-        setLname(response.data[0].lastname)
+      
+        setFname(response.data[0].Firstname)
+        setLname(response.data[0].Lastname)
 
     },[])
 

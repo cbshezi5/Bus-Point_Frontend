@@ -65,10 +65,7 @@ const HomeScreen = () => {
           );
 
 
-        useEffect(async ()=>{
-            let x =  await GETRequest(`${HOSTNAME}/Content/Campus`)
-            setCampuses(x?.data)
-        },[])
+       
             
       
         const [color, setColor] = useState(null)
@@ -140,14 +137,13 @@ const HomeScreen = () => {
 
                     }>
                         <Picker.Item label="Select a campus" value="default" />
-                    {
-                        campuses.map((campus) => {
-
-                            return  (<Picker.Item label={campus.Campus_name} value={campus.Campus_name} key={campus.campus_id}/>)
-
-                        })
-                        
-                    }  
+                        <Picker.Item label={"Soshanguve South Campus"} value={"Soshanguve South Campus"} key={1}/>
+                        <Picker.Item label={"Soshanguve North Campus"} value={"Soshanguve North Campus"} key={2}/>
+                        <Picker.Item label={"Arcadia Campus"} value={"Arcadia Campus"} key={3}/>
+                        <Picker.Item label={"Pretoria Campus"} value={"Pretoria Campus"} key={4}/>
+                        <Picker.Item label={"Art Campus"} value={"Art Campus"} key={5}/>
+                        <Picker.Item label={"Polokwane Campus"} value={"Polokwane Campus"} key={6}/>
+                        <Picker.Item label={"Garankuwe Campus"} value={"Garankuwe Campus"} key={7}/> 
                 </Picker>
 
 
@@ -166,14 +162,15 @@ const HomeScreen = () => {
                     
                     
                     >
+                        
                         <Picker.Item label="Select a campus" value="default" />
-                    {
-                        campuses.map((campus) => {
-
-                            return  (<Picker.Item label={campus.Campus_name} value={campus.Campus_name} key={campus.campus_id}/>)
-
-                        })
-                    } 
+                        <Picker.Item label={"Soshanguve South Campus"} value={"Soshanguve South Campus"} key={1}/>
+                        <Picker.Item label={"Soshanguve North Campus"} value={"Soshanguve North Campus"} key={2}/>
+                        <Picker.Item label={"Arcadia Campus"} value={"Arcadia Campus"} key={3}/>
+                        <Picker.Item label={"Pretoria Campus"} value={"Pretoria Campus"} key={4}/>
+                        <Picker.Item label={"Art Campus"} value={"Art Campus"} key={5}/>
+                        <Picker.Item label={"Polokwane Campus"} value={"Polokwane Campus"} key={6}/>
+                        <Picker.Item label={"Garankuwe Campus"} value={"Garankuwe Campus"} key={7}/>
                 </Picker>
                 <TouchableOpacity style={styles.iconPromo3} onPress={()=>{nextPassing(selectedCamp,selectedCamp2,color,color2)}}><Image source={require('../assets/play_100px.png')} style = {styles.iconProp3} /></TouchableOpacity>
                 
