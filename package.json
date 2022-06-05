@@ -28,6 +28,7 @@
     "expo-cli": "^4.12.10",
     "expo-constants": "~12.1.3",
     "expo-file-system": "~13.0.3",
+    "expo-image-picker": "11.0.3",
     "expo-location": "~13.0.4",
     "expo-notifications": "~0.13.3",
     "expo-status-bar": "~1.1.0",
