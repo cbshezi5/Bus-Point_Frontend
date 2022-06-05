@@ -70,13 +70,15 @@ const Trip = (props) => {
 
     if((new Date(props.date).getDate()) < day || (new Date(props.date).getMonth()+1) < month || (new Date(props.date).getFullYear()) < year)
     {
+        console.log("Expire by date")
         useEffect(()=>setStatus("Expired"))
     }
 
-    if((new Date(props.date).getDate()) == day || (new Date(props.date).getMonth()+1) == month || (new Date(props.date).getFullYear()) == year)
+    if((new Date(props.date).getDate()) == day && (new Date(props.date).getMonth()+1) == month && (new Date(props.date).getFullYear()) == year)
     {
         if(Number(busHr) < hour)
         {
+            console.log("Expire by time")
             useEffect(()=>setStatus("Expired"))
         }
         else if(Number(busHr) == hour && Number(busMin) < min)

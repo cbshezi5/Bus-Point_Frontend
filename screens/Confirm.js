@@ -2,12 +2,15 @@ import React,{useState,useEffect, useRef} from 'react'
 import { StyleSheet, Text, View,TouchableOpacity,ToastAndroid,Vibration,LogBox, Platform,Image } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
-import { selectDestination,selectOrigin,selectTime,setStNumber,selectStNumber,selectFirstName,selectLastName } from '../slices/navSlice';
+import { selectDestination,selectOrigin,selectTime,setStNumber,selectStNumber,selectFirstName,selectLastName,setMusic } from '../slices/navSlice';
 import { onSnapshot,collection,query,where,addDoc,updateDoc,doc,getDocs } from "firebase/firestore"
 import { useDispatch } from 'react-redux';
 import { db } from '../firebase-config';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
+import { POSTRequest } from './../Request'
+import { HOSTNAME } from '../globals'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const message = "By Confirming you will be"+
@@ -174,13 +177,6 @@ const Confirm = () => {
     const [loadingShow, setLoadingShow] = useState(false)
     const dispatch = useDispatch()
     let loadState = "undone"
-    let slotload = "undone"
-    let tripTempload = "undone"
-    let temp = false
-    let Wslot;
-    let [slots, setSlots] = useState([])
-    
-    
     const studentNum = useSelector(selectStNumber)
 
     //Notification Handle Variable
@@ -209,141 +205,34 @@ const Confirm = () => {
       }, []);
       //Notifi end
     
-    useEffect(
-        () => 
-        onSnapshot(
-            query(
-                collection(db,"Trip"),
-                where('Date','==', time.date),
-                ), 
-                (snapshot) => 
-                    setTrip(
-                        snapshot
-                        .docs
-                        .filter((doc) => doc.get("Status") == "Active")
-                        .filter((doc) => doc.get("Temporally") == false)
-                        .filter((doc) => doc.get("StudentNumber") == String(studentNum))
-                        .map(doc => ({
-                            id : doc.id,
-                            ...doc.data()
-                        })) 
-                    ) 
-                )
-            ,    
-        []
-        
-    );
-    loadState = "done";
+   
+
  
 
     const  qrScreen = async ()  =>
     {
-       
-        if(trip[0]?.id != null && loadState == "done")
+        let day =  String(time.date).substring(0,String(time.date).indexOf('-'))
+        let mon = String(time.date).substring(String(time.date).indexOf('-')+1,String(time.date).lastIndexOf('-'))
+        let yr = String(time.date).substring(String(time.date).lastIndexOf('-')+1,String(time.date).length)
+        console.log(time.id)
+        let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
+        let x = await POSTRequest(`${HOSTNAME}/Student/Book`,{
+            "Studentid":userdata[0].Studentid,
+            "Scheduleid":time.id,
+            "ori":origin,
+            "dest":destination,
+            "time":time.time,
+            "date":`${yr}-${mon}-${day}`
+        })
+        
+        if(x?.error)
         {
-            Vibration.vibrate(100)
-            ToastAndroid.show("You already have a active trip on "+trip[0]?.Time+" From "+trip[0]?.From+" to "+trip[0]?.To ,ToastAndroid.LONG)
+            Vibration.vibrate(70)
+            ToastAndroid.show(x.message,ToastAndroid.LONG)
+            return
         }
-        else
-        {
-                
-            if(slots[0]?.From == null)
-            {
-             onSnapshot(
-                query(
-                    collection(db,"Slot"),
-                    where('Date','==', time.date),
-                    ), 
-                    (snapshot) => 
-                        setSlots(
-                            snapshot
-                            .docs
-                            .filter((doc) => doc.get("From") == origin)
-                            .filter((doc) => doc.get("To") == destination)
-                            .map(doc => ({
-                                ...doc.data(), 
-                                
-                        }))
-                        
-                )
-            )
-            }
-            slotload='done'
-
-            
-           
-            if(slots[0]?.From != null && slotload == "done")
-            {
-                Wslot = slots[0]?.Slot;
-
-
-                if(Wslot[time.index - 1].Space == 0)
-                {
-                    Wslot[time.index - 1].Bus = Wslot[time.index - 1].Bus + 1
-                    Wslot[time.index - 1].Space = 42
-                    temp = true 
-                }
-                else
-                {
-                    Wslot[time.index - 1].Space = Wslot[time.index - 1].Space - 1
-                }
-
-                if(Wslot[time.index - 1].Space > 45/2 && Wslot[time.index - 1].Bus > 1)
-                {
-                    temp = true
-                }
-
-                let temps = null;
-                //Getting the existance of the temporally trip(token) in number
-                await getDocs(
-                        query(collection(db,"Trip")))
-                        .then((data)=>
-                        {temps = data.docs
-                        .filter((doc) => doc.get("Date") == time.date)
-                        .filter((doc) => doc.get("StudentNumber") == String(studentNum))
-                        .filter((doc) => doc.get("Temporally") == true)
-                        .filter((doc) => doc.get("Status") == "Active")
-                        .length
-                    })
-                
-                if(temps > 0 && temp)
-                { 
-                        Wslot[time.index - 1].Space = Wslot[time.index - 1].Space + 1
-                        Vibration.vibrate(100)
-                        ToastAndroid.show("Already have a temporally trip booked",500) 
-                        return
-                }
-               
-                //
-                dispatch(setStNumber(studentNum))
-                
-                setLoadingShow(true)
-                await addDoc(collection(db,"Trip"),{Date:time.date,
-                                            From:origin,
-                                            To:destination,
-                                            Time:time.time,
-                                            StudentNumber:studentNum,
-                                            Temporally:temp,
-                                            Status:"Active",
-                                            No:1,
-                                            NotificationKeys:await schedulePushNotification(FirstName,LastName,time)})
-                .catch((error)=>{
-                    console.log(error.message)
-                })
-                
-                 const slotDoc = doc(db,"Slot",time.id)
-    
-                 const newVal = {"Slot": Wslot }                           
-                  
-                 await updateDoc(slotDoc,newVal)
-                .catch((error)=>{console.log(error.message)})
-                
-                calculateTimeNotifcation(time.time)
-                setLoadingShow(false)
-                navigation.navigate("QRCode")
-            }
-            
-        }
+        dispatch(setMusic(time.id))
+        navigation.navigate("QRCode")
     }
 
     return (

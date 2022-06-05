@@ -3,7 +3,7 @@ import { StyleSheet, Text, View ,TouchableOpacity,ScrollView,Image} from 'react-
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SlotRender from './components/SlotRender';
 import { useSelector } from 'react-redux';
-import { selectDestination,selectOrigin } from '../slices/navSlice';
+import { selectDestination,selectOrigin,selectMusic } from '../slices/navSlice';
 import { GETRequest } from './../Request'
 import { HOSTNAME } from '../globals'
 
@@ -13,6 +13,7 @@ const Slots = () => {
     const [dateTittle,setDateTittle] = useState('Today')
     const origin = useSelector(selectOrigin)
     const destination = useSelector(selectDestination)
+    const render = useSelector(selectMusic)
     const [slot, setSlots] = useState([]);
 
     
@@ -84,7 +85,7 @@ const Slots = () => {
          
         }
         setIsLoading(false)
-      },[date])
+      },[date,render])
  
   
       //DB
