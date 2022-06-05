@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
         backgroundColor:"black",
         height:70,
         justifyContent:"center",
-        width:200,
+        width:360,
         alignSelf:"center"
     },
     btnYes:{

@@ -74,11 +74,16 @@ const Slots = () => {
         if(month < 10) month = "0" + month
         let year = new Date(date).getFullYear()
         let dateCalender = year+"-"+month+"-"+day
-    
 
-        let x = await GETRequest(`${HOSTNAME}/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
-        setSlots(x.data)
-        setRequestState("No slots found")
+
+       
+        if((date.getDay() != 6) || (date.getDay() != 0))
+        {
+            let x = await GETRequest(`${HOSTNAME}/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
+            setSlots(x.data)
+             console.log("NEW")
+            setRequestState("No slots found")
+        }
 
       },[date])
  
@@ -118,7 +123,7 @@ const Slots = () => {
                 </View>
             )
             :
-            !slot[0] ?(
+            !slot?(
                 <View style={styles.noBus}>
                     <TouchableOpacity style={styles.iconPromo2}><Image source={require('../assets/bus_bl48px.png')} style = {styles.iconProp} /></TouchableOpacity>
 			 
@@ -131,10 +136,10 @@ const Slots = () => {
                         slot.map((eachSlot)=>{
                             return (<SlotRender busNum={1} 
                             time={eachSlot.time} 
-                            avalSpace={eachSlot.seats}  
-                            key={eachSlot.slot_id} 
+                            avalSpace={eachSlot.Seats}  
+                            key={eachSlot.Scheduleid} 
                             date={eachSlot.date} 
-                            id={eachSlot.slot_id} 
+                            id={eachSlot.Scheduleid} 
                             index={2}
                             slotType={1}/>)  
                         })  
