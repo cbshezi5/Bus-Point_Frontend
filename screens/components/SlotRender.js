@@ -85,7 +85,7 @@ const SlotRender = (props) => {
                             // setMessage(props.busNum + "Bus depurting")
                             // setSeatMessage("Early bird catches the worm")
                         }
-
+                       
                         if((hrTrp - hrCur === 1) && props.date == dayCur)
                         {
                             setDisableColor("green")
@@ -104,7 +104,7 @@ const SlotRender = (props) => {
                         }
                     }
                     //---------------------------------------------Getting Slot Type-------------------------------------------------
-                    if(props.slotType == 3)
+                    if(props.slotType == 2)
                     {
                     //Config of a 15min bounce
                         if(Number(props.date.split("-")[0]) === Number(dayCur.split("-")[0]))

@@ -64,10 +64,10 @@ const Slots = () => {
       
       };
 
-      const [requestState, setRequestState] = useState("Loading...")
+      const [loading, setIsLoading] = useState(false)
 
       useEffect(async()=>{
-
+        setIsLoading(true)
         let day = new Date(date).getDate()
         if(day < 10) day ="0" + day
         let month = new Date(date).getMonth() + 1
@@ -81,10 +81,9 @@ const Slots = () => {
         {
             let x = await GETRequest(`${HOSTNAME}/Track/Tracking?ori=${origin}&dest=${destination}&date=${dateCalender}`)
             setSlots(x.data)
-             console.log("NEW")
-            setRequestState("No slots found")
+         
         }
-
+        setIsLoading(false)
       },[date])
  
   
@@ -123,11 +122,11 @@ const Slots = () => {
                 </View>
             )
             :
-            !slot?(
+            loading?(
                 <View style={styles.noBus}>
-                    <TouchableOpacity style={styles.iconPromo2}><Image source={require('../assets/bus_bl48px.png')} style = {styles.iconProp} /></TouchableOpacity>
+                    <TouchableOpacity style={styles.iconPromo2}><Image  source={require('../assets/R.gif')} style = {[styles.iconProp,{width:20,height:20}]} /></TouchableOpacity>
 			 
-                    <Text style={[styles.messge,styles.noBusMes]}>{requestState}</Text>
+                    <Text style={[styles.messge,styles.noBusMes]}>Please await while loading schedule</Text>
                 </View>
             )   
             :
@@ -141,7 +140,7 @@ const Slots = () => {
                             date={eachSlot.date} 
                             id={eachSlot.Scheduleid} 
                             index={2}
-                            slotType={1}/>)  
+                            slotType={eachSlot.SchedType}/>)  
                         })  
                     }
                     </ScrollView>
