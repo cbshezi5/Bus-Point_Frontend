@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, LogBox,TouchableOpacity,BackHandler,Alert,Vibration } from 'react-native';
+import { Text, View, StyleSheet, LogBox,TouchableOpacity,BackHandler,Alert,Vibration,Image } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation } from '@react-navigation/core';
 import { useDispatch,useSelector } from 'react-redux';
 import { setStNumber,setMusic,selectStNumber,selectMusic,selectOrigin } from '../slices/navSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import { PUTRequest,POSTRequest } from '../Request'
+import { HOSTNAME } from '../globals'
+ 
 async function getUserDet(setUserDetails,setUserMeta,setUsername) {
     let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
     setUserDetails(userdata[0].Firstname +" "+userdata[0].Lastname)
@@ -23,18 +24,37 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
   
   
   // Only after calling "find" all query conditions will resolve
-  
-          dispatch(setStNumber({"firstName":"Cebolenkosi",
-                                "lastName":"Shezi",
-                                "stNumber":"217070554",
-                                "email":"217070554@tut4life.ac.za"}))
+  ///Studentid stid
+      
+        let x = await PUTRequest(`${HOSTNAME}/Content/Campus`,{stNumber:studentNumber})
+
+
+        if(x.data.length < 1)
+        {
+          setTColor("Student not found")
+          setAcces("red")
+          dispatch(setMusic({"Origin":"",
+                          "Destination":"",
+                          "Date":"",
+                          "Time":""}))  
+          return
+        }
+
+
+        console.log(x.data[0].profilepicture)
+        dispatch(setStNumber({"firstName":x.data[0].Firstname,
+                                "lastName":x.data[0].Lastname,
+                                "stNumber":studentNumber,
+                                "email":x.data[0].Student_Email,
+                                "profilepic":x.data[0].profilepicture}))
                                 
          ////////////////////////////////Trip Detail retriving//////////////////////////////////////
-        
-       dispatch(setMusic({"Origin":"Soshanguve South Campus",
-                          "Destination":"Arcadia Campus",
-                          "Date":"2022-6-6",
-                          "Time":"08:00"}))   
+         let y = await POSTRequest(`${HOSTNAME}/Content/Campus`,{stid:x.data[0].Studentid,currentDate:curDate})
+
+       dispatch(setMusic({"Origin":y.data[0].From,
+                          "Destination":y.data[0].To,
+                          "Date":y.data[0].Date,
+                          "Time":y.data[0].Time}))   
         
         // if(tripToken.length < 1)
         // {
@@ -42,12 +62,9 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
         //   setAcces("red")
         //   return
         // }
-      
+        
 
-        if(!timeCheckUp({"Origin":"Soshanguve South Campus",
-        "Destination":"Arcadia Campus",
-        "Date":"2022-6-6",
-        "Time":"08:00"},setT,setTColor,setAcces))
+        if(!timeCheckUp(y,setT,setTColor,setAcces))
         {
           return
         }
@@ -156,7 +173,7 @@ export default function Scan() {
 
   //Handling the scanned QR code
   const handleBarCodeScanned = ({  data }) => {
-    console.log("Scanned")
+   
     setColorErrO("white")
     setColorErrT("white")
     setColorErrD("white")
@@ -199,22 +216,23 @@ export default function Scan() {
             <View style={styles.cover}>
                        {/*               Header                      */}
                     <View style={styles.admiter}>
-                          <Text style={styles.adm}>Admiter : {UserDetails}</Text>
+                          <Text style={styles.adm}>Admin : {UserDetails}</Text>
                           <Text style={[styles.adm,{fontSize
                             :14,color:"grey"}]}>Email : {userMeta}</Text>
                   </View>
                   <View style={[styles.admiter,{marginTop:0,backgroundColor:"black",height:30}]}>
-                          <Text style={[styles.adm,{color:"white",alignSelf:"center"}]}>Time : {hr}:00 • </Text>
+                          <Text style={[styles.adm,{color:"white",alignSelf:"center",fontSize:14}]}>Next Bus Going Time : {hr}:00 </Text>
                   </View>
                   {/*                 Student Details                      */}
+                  <Image style = {{alignSelf:"center",width:200,height:200,marginTop:20,borderRadius:100}}  source={{uri:studentNumber?.profilepic}} />
+         
+     
                   <View style={styles.details}>
-                        <Text style={[styles.text,{fontSize:26}]}>Student Number: {studentNumber?.stNumber}</Text>                
-                        <Text style={[styles.text,{color:"black"}]}>Student First Name: {studentNumber?.firstName}</Text>
-                        <Text style={[styles.text,{color:"black"}]}>Student Last Name: {studentNumber?.lastName}</Text>
+                        <Text style={[styles.text,{fontSize:20,alignSelf:"center"}]}>{studentNumber?.firstName} {studentNumber?.lastName} ({studentNumber?.stNumber})</Text>                
                         {
                             studentNumber?.email != null ?
                             (
-                              <Text style={styles.text}>Student Email: {studentNumber?.email}</Text>
+                              <Text style={[styles.text,{color:"black",alignSelf:"center",fontSize:14,}]}> {studentNumber?.email}</Text>
                             )
                             :
                               null
@@ -224,13 +242,14 @@ export default function Scan() {
   
                   {/*                 Student Details Trip                     */}
                   {/*                 StudentTrips                             */}
-                 
+                        
                   <View style={styles.passcard}>
-                        <Text style={[styles.text,{fontSize:20,color:"white"}]}>Depureture: {tripDetails?.Origin}<Text style={{color:colorErrO}}> •</Text></Text>
-                        <Text style={[styles.text,{fontSize:20,color:"white"}]}>Destination: {tripDetails?.Destination}<Text style={{color:colorErrD}}> •</Text></Text>
-                        <Text style={[styles.text,{fontSize:20,color:"white"}]}>Time : {tripDetails?.Time}<Text style={{color:colorErrT}}> •</Text></Text>
-                        <Text style={[styles.text,{fontSize:20,color:"white"}]}>Admition : <Text style={{color:colorSta}}>{access}</Text></Text>
-                        </View>
+                        <Text style={{alignSelf:"center",color:"lightgrey"}}>Token is fetched based on your intrval checker</Text>
+                        <Text style={[styles.text,{fontSize:17,color:"white"}]}>Depureture: {tripDetails?.Origin}<Text style={{color:colorErrO}}> •</Text></Text>
+                        <Text style={[styles.text,{fontSize:17,color:"white"}]}>Destination: {tripDetails?.Destination}<Text style={{color:colorErrD}}> •</Text></Text>
+                        <Text style={[styles.text,{fontSize:17,color:"white"}]}>Time : {tripDetails?.Time}<Text style={{color:colorErrT}}> •</Text></Text>
+                        <Text style={[styles.text,{fontSize:17,color:"white"}]}>Admition : <Text style={{color:colorSta}}>{access}</Text></Text>
+                  </View>
 
                   </View>
                   {/*                 Footer                      */}
@@ -260,7 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor:"whitesmoke",
     width:380,
     height:70,
-    marginTop:50,
+    marginTop:10,
     alignSelf:"center",
     justifyContent:"center"
   },
@@ -276,7 +295,7 @@ const styles = StyleSheet.create({
   },
   footer:
     {
-        marginTop:50,
+        marginTop:30,
         alignSelf:"center",
         
     },
@@ -285,7 +304,7 @@ const styles = StyleSheet.create({
     width:200,
     height:70,  
     justifyContent:"center",
-    marginBottom:50,
+    marginBottom:15,
     },
     scanTxt:{
         color:"white",
@@ -294,7 +313,7 @@ const styles = StyleSheet.create({
         fontWeight:"700"
     },
     details:{
-      marginTop:23,
+      marginTop:5,
       marginLeft:33
     },
     text:{
@@ -302,16 +321,16 @@ const styles = StyleSheet.create({
       marginTop:13
     },
     passcard:{
-      marginLeft:-23,
+      marginLeft:-33,
       backgroundColor:"black",
       alignSelf:"center",
-      width:300,
-      marginTop:53,
+      width:400,
+      marginTop:30,
       paddingBottom:23,
       paddingRight:23,
       paddingLeft:23,
       paddingTop:23,
-      borderRadius:34
+      borderRadius:14
     }
 });
 

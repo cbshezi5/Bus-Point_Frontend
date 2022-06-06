@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/core'
 import { useDispatch } from 'react-redux';
 import { setOrigin } from '../slices/navSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 
 async function logout(navigation)
 { 
@@ -21,6 +21,7 @@ const Route = () => {
     const dispatch = useDispatch()
     const [userDetails, setUserDetails] = useState(String())
     const [userEmail, setEmail] = useState(String())
+    const [current, setCurrent] = useState("60");
     const navigation = useNavigation()
   
     useEffect(async ()=>{
@@ -59,7 +60,7 @@ const Route = () => {
     return (
         <View style={{justifyContent:"center",flex:1}}>
              <View style={styles.icon}>
-                        <TouchableOpacity onPress={()=>{navigation.navigate("Scan")}}>
+                        <TouchableOpacity onPress={()=>{navigation.navigate("Scan",{checker:current})}}>
                             <Image source={require('../assets/bus_wh48px.png')} style = {styles.iconProp}/>
                         </TouchableOpacity> 
             </View>
@@ -67,6 +68,15 @@ const Route = () => {
             <Text style={{alignSelf:"center",fontSize:18,marginTop:20}}>Let's start </Text>
             <Text style={{alignSelf:"center",fontSize:14,marginTop:1}}>Click the icon above </Text>
             <Text style={{alignSelf:"center",fontSize:22,marginTop:80}}>{userEmail} </Text>
+            <RadioButtonGroup
+                containerStyle={{ marginBottom: 10,marginTop:20,alignSelf:"center" }}
+                selected={current}
+                onSelected={(value) => setCurrent(value)}
+                radioBackground="black"
+            >
+                <RadioButtonItem style={{marginBottom:20}} value="60" label={<Text style={{ color: "black",marginBottom:20 }}>1hour checker</Text>} />
+                <RadioButtonItem value="15" label={<Text style={{ color: "black" }}>15min checker</Text>} />
+            </RadioButtonGroup>
         </View>
     )
 }
