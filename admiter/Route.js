@@ -2,22 +2,10 @@ import React,{useState ,useEffect} from 'react'
 import { StyleSheet, Text, View,TouchableOpacity,Image,LogBox,ToastAndroid,Alert } from 'react-native'
 import Parse from "parse/react-native";
 import { useNavigation } from '@react-navigation/core'
-import { db } from '../firebase-config';
-import { collection,query,getDocs } from "firebase/firestore"
 import { useDispatch } from 'react-redux';
 import { setOrigin } from '../slices/navSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-async function getUserDet(setUserDetails) {
-    await Parse.User.currentAsync()
-
-    .then((loggedInUser)=>{
-        setUserDetails(loggedInUser.get("firstName")+" "+loggedInUser.get("lastName"))   
-    })
-    .catch((error)=>{
-        console.log(error.message)
-        ToastAndroid.show("Sorry we couldn't get your details",500)
-    }) 
-}
 
 async function logout(navigation)
 { 
@@ -26,41 +14,22 @@ async function logout(navigation)
 }
 
 
-const Route = ({ route }) => {
+const Route = () => {
     LogBox.ignoreLogs(['Setting a timer'])
 
     
     const dispatch = useDispatch()
     const [userDetails, setUserDetails] = useState(String())
-    const [userRouteWay, setRouteWay] = useState()
-    
+    const [userEmail, setEmail] = useState(String())
     const navigation = useNavigation()
-    const { username } = route.params;
-    let driverDet;
+  
+    useEffect(async ()=>{
+        let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
+        setUserDetails(userdata[0].Firstname +" "+userdata[0].Lastname)
+        setEmail(userdata[0].Email)
+    },[])
 
-    getUserDet(setUserDetails)
-    
 
-    
-    
-    useEffect( async () =>
-            await getDocs(
-                query(collection(db,"Driver")))
-                .then((data)=>
-                {   
-                    driverDet = data.docs 
-                        .filter((doc) => doc.get("StuffNumber") == String(username))
-                        .map(doc=> ({
-                            To : doc.get('To'),
-                            From : doc.get('From')
-                    }))
-                    setRouteWay({"From":driverDet[0]?.From,"To":driverDet[0]?.To})
-                    dispatch(setOrigin({From:driverDet[0]?.From,To:driverDet[0]?.To}))
-                   
-                }).catch((error)=>{
-                    console.log(error.message)
-                }) 
-    , [])
 
     //Back button blocking
     React.useEffect(
@@ -97,10 +66,7 @@ const Route = ({ route }) => {
             <Text style={{alignSelf:"center",fontSize:25}}>Welcome {userDetails}</Text>
             <Text style={{alignSelf:"center",fontSize:18,marginTop:20}}>Let's start </Text>
             <Text style={{alignSelf:"center",fontSize:14,marginTop:1}}>Click the icon above </Text>
-            <Text style={{alignSelf:"center",fontSize:22,marginTop:80}}>You are driving the route </Text>
-            <Text style={{alignSelf:"center",fontSize:18,marginTop:5,marginBottom:-19}}>{userRouteWay?.From}</Text>
-            <Text style={{alignSelf:"center",fontSize:40,marginTop:5}}>•</Text>
-            <Text style={{alignSelf:"center",fontSize:18,marginTop:-15}}>{userRouteWay?.To}</Text>
+            <Text style={{alignSelf:"center",fontSize:22,marginTop:80}}>{userEmail} </Text>
         </View>
     )
 }

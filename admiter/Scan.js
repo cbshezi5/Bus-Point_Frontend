@@ -4,108 +4,59 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation } from '@react-navigation/core';
 import { useDispatch,useSelector } from 'react-redux';
 import { setStNumber,setMusic,selectStNumber,selectMusic,selectOrigin } from '../slices/navSlice';
-import Parse from "parse/react-native";
-import { db } from '../firebase-config';
-import {collection,query,getDocs,updateDoc,doc } from "firebase/firestore"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 async function getUserDet(setUserDetails,setUserMeta,setUsername) {
-  await Parse.User.currentAsync()
-  .then((loggedInUser)=>{
-      setUserDetails(loggedInUser.get("firstName")+" "+loggedInUser.get("lastName"))
-      setUserMeta(loggedInUser.getEmail())
-      setUsername(loggedInUser.getUsername())
-      
-      
-  })
-  .catch((error)=>{
-      console.log(error.message)
-      ToastAndroid.show("Sorry we couldn't get your details",500)
-  }) 
-  
+    let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
+    setUserDetails(userdata[0].Firstname +" "+userdata[0].Lastname)
+    setUserMeta(userdata[0].Email)
+    setUsername(userdata[0].Email)
 }
 
-
 const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,setO,setD,setT,setTColor,setAcces) {
-  const parseQuery = new Parse.Query(Parse.User);
+
   let arrayVal;
   let curDate = new Date()
   let tripToken;
   curDate = curDate.getDate()+"-"+(curDate.getMonth()+1)+"-"+curDate.getFullYear()
-  if (studentNumber !== '') {   
-    parseQuery.matches('username', studentNumber, 'i');
-  }
+  
   
   // Only after calling "find" all query conditions will resolve
-  return await parseQuery
-    .find()
-    .then(async (queriedUsers) => {
-      arrayVal = queriedUsers
-          .map(doc => ({
-              firstName : doc.get("firstName"),
-              lastName : doc.get("lastName"),
-              email : doc.getEmail(),
-              userName : doc.getUsername(),
-          }))
-          dispatch(setStNumber({"firstName":arrayVal[0]?.firstName,
-                                "lastName":arrayVal[0]?.lastName,
-                                "stNumber":arrayVal[0]?.userName,
-                                "email":arrayVal[0]?.email}))
+  
+          dispatch(setStNumber({"firstName":"Cebolenkosi",
+                                "lastName":"Shezi",
+                                "stNumber":"217070554",
+                                "email":"217070554@tut4life.ac.za"}))
                                 
          ////////////////////////////////Trip Detail retriving//////////////////////////////////////
-         await getDocs(
-          query(collection(db,"Trip")))
-            .then((data)=>
-            {tripToken = data.docs
-            .filter((doc) => doc.get("Date") == curDate)
-            .filter((doc) => doc.get("StudentNumber") == String(studentNumber))
-            .filter((doc) => doc.get("Temporally") == false)
-            .filter((doc) => doc.get("Status") == "Active")
-            .map(doc=> ({
-              id : doc.id,
-              ...doc.data()
-            }))
-          })
-       dispatch(setMusic({"Origin":tripToken[0]?.From,
-                          "Destination":tripToken[0]?.To,
-                          "Date":tripToken[0]?.Date,
-                          "Time":tripToken[0]?.Time}))   
         
-        if(tripToken.length < 1)
-        {
-          setTColor("No trip found for today")
-          setAcces("red")
-          return
-        }
-        if(route?.From != tripToken[0]?.From)
-        {
-          setO("red")
-          setTColor("Deny")
-          setAcces("red")
-          return
-        }
+       dispatch(setMusic({"Origin":"Soshanguve South Campus",
+                          "Destination":"Arcadia Campus",
+                          "Date":"2022-6-6",
+                          "Time":"08:00"}))   
+        
+        // if(tripToken.length < 1)
+        // {
+        //   setTColor("No trip found for today")
+        //   setAcces("red")
+        //   return
+        // }
+      
 
-        if(route?.To != tripToken[0]?.To)
-        {
-          setD("red")
-          setTColor("Deny")
-          setAcces("red")
-          return
-        }
-
-        if(!timeCheckUp(tripToken,setT,setTColor,setAcces))
+        if(!timeCheckUp({"Origin":"Soshanguve South Campus",
+        "Destination":"Arcadia Campus",
+        "Date":"2022-6-6",
+        "Time":"08:00"},setT,setTColor,setAcces))
         {
           return
         }
 
-        let docRef = doc(db,"Trip",tripToken[0]?.id)
-        updateDoc(docRef,{Status : "Used"})
 
 
       return true;
-    })
-    .catch((error) => {
-      console.log(error.message)
-    })
+ 
+   
 
     
 }
@@ -133,7 +84,7 @@ function timeCheckUp(tripDetails,setColorErrT,setAccess,setColorSta)
           return false
         }
       }
-  }
+}
 
 export default function Scan() {
   LogBox.ignoreLogs(['Setting a timer'])
@@ -205,6 +156,7 @@ export default function Scan() {
 
   //Handling the scanned QR code
   const handleBarCodeScanned = ({  data }) => {
+    console.log("Scanned")
     setColorErrO("white")
     setColorErrT("white")
     setColorErrD("white")
@@ -245,10 +197,11 @@ export default function Scan() {
       {
         scanned &&
             <View style={styles.cover}>
-                  {/*                 Header                      */}
+                       {/*               Header                      */}
                     <View style={styles.admiter}>
                           <Text style={styles.adm}>Admiter : {UserDetails}</Text>
-                          <Text style={[styles.adm,{fontSize:14,color:"grey"}]}>Email : {userMeta}</Text>
+                          <Text style={[styles.adm,{fontSize
+                            :14,color:"grey"}]}>Email : {userMeta}</Text>
                   </View>
                   <View style={[styles.admiter,{marginTop:0,backgroundColor:"black",height:30}]}>
                           <Text style={[styles.adm,{color:"white",alignSelf:"center"}]}>Time : {hr}:00 • </Text>
@@ -285,7 +238,7 @@ export default function Scan() {
                     <TouchableOpacity style={styles.scanBtn} onPress={()=>{setScanned(false)}}>
                         <Text style={styles.scanTxt}>Scan</Text>
                     </TouchableOpacity>
-                </View>  
+                </View>   
             </View>
       }
     </View>

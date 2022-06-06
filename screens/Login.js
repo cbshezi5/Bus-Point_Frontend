@@ -7,21 +7,7 @@ import { POSTRequest } from './../Request'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HOSTNAME } from '../globals'
 
-async function deleteFile()
-{
-    await FileSystem.deleteAsync(FileSystem.documentDirectory + 'myDirectory/myFile/user.txt')
-    .catch((error)=>{console.log(error.message)})
-}
 
-async function checkANDcreateFile(username,password) {
-
-        await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'myDirectory/myFile',{intermediates:true})
-        .catch((error)=>{console.log(error.message)})
-
-        await FileSystem.writeAsStringAsync(FileSystem.documentDirectory + 'myDirectory/myFile/user.txt',String('["'+username+'","'+password+'"]'))
-        .catch((error) =>{ToastAndroid.show(error.message,500)})
-       
-}
 
 function toRegister(navigation) {  
     navigation.navigate("Register")
@@ -87,7 +73,10 @@ const Login = () => {
         //Handing Human Error
         if(emailOrStudentNo == "")
         {
-            ToastAndroid.show("Empty email/student number not allowed",500)
+            if(!isChecked)
+            ToastAndroid.show("Student number is required",500)
+            else
+            ToastAndroid.show("Stuff email is required",500)
             setEmailOrStudentNoErr("*Field is mandetory")
             return
         }
@@ -108,8 +97,15 @@ const Login = () => {
             setPasswordErr("")
         }
         setLoading(true)
-        
-        let response = await  POSTRequest(`${HOSTNAME}/Auth/Login`,{"email":emailOrStudentNo,"password":password})
+        let response
+        if(!isChecked)
+        {
+            response = await  POSTRequest(`${HOSTNAME}/Auth/Login`,{"email":emailOrStudentNo,"password":password})  
+        }
+        else
+        {
+            response = await  POSTRequest(`${HOSTNAME}/Auth/Login_Admin`,{"email":emailOrStudentNo,"password":password})
+        }
 
         setLoading(false)
         if(response?.error)
@@ -126,20 +122,16 @@ const Login = () => {
         }
         else
         {
-                if(isChecked)
-                {
-                    checkANDcreateFile(emailOrStudentNo,password)
-                }
-                else
-                {
-                    deleteFile()
-                }
+               
                 
                 if(!response?.error)
                 {
                     const userdata = JSON.stringify(response?.data)
                     await AsyncStorage.setItem('@user_data',userdata)
+                    if(!isChecked)
                     navigation.navigate("HomeScreen")
+                    else
+                    navigation.navigate("Route")
                 }   
                 
         } 
@@ -161,16 +153,34 @@ const Login = () => {
                 :
                 null
             }
-            <TextInput 
-                style={styles.input} 
-                numberOfLines={1}
-                multiline={false}
-                placeholder="Staff / Student number"
-                maxLength={64}
-                autoCapitalize="none"
-                autoCompleteType="email"
-                onChangeText={(e)=>{setEmailOrStudentNo(e)}}
-                />
+            {
+                isChecked?
+                (
+                    <TextInput 
+                        style={styles.input} 
+                        numberOfLines={1}
+                        multiline={false}
+                        placeholder="Stuff Email"
+                        maxLength={64}
+                        autoCapitalize="none"
+                        autoCompleteType="email"
+                        onChangeText={(e)=>{setEmailOrStudentNo(e)}}
+                        />
+                )
+                :
+                <TextInput 
+                    style={styles.input} 
+                    numberOfLines={1}
+                    multiline={false}
+                    placeholder="Student number"
+                    maxLength={9}
+                    autoCapitalize="none"
+                    keyboardType = 'number-pad'
+                    onChangeText={(e)=>{setEmailOrStudentNo(e)}}
+                    />
+
+            }
+            
                 <Text style={{marginLeft:50,color:"red"}}>{emailOrStudentNoErr}</Text>
             <TextInput 
                 style={[styles.input,{marginTop:60,paddingRight:50}]} 
@@ -209,7 +219,7 @@ const Login = () => {
                 onValueChange={setChecked} 
                 color="black"
                 />
-                <Text style={{marginTop:-20,marginLeft:70}}>Auto login</Text>
+                <Text style={{marginTop:-20,marginLeft:70}}>As Administrator</Text>
           
                     
                     {
