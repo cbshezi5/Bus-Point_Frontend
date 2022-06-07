@@ -37,31 +37,39 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
                           "Destination":"",
                           "Date":"",
                           "Time":""}))  
+						  
+			dispatch(setStNumber({"firstName":"",
+                         "lastName":"",
+                         "stNumber":"",
+                         "email":"",
+                         "profilepic":""}))
           return
         }
 
 
-        console.log(x.data[0].profilepicture)
+        
         dispatch(setStNumber({"firstName":x.data[0].Firstname,
                                 "lastName":x.data[0].Lastname,
                                 "stNumber":studentNumber,
-                                "email":x.data[0].Student_Email,
+                                "email":"("+x.data[0].Student_Email+")",
                                 "profilepic":x.data[0].profilepicture}))
                                 
          ////////////////////////////////Trip Detail retriving//////////////////////////////////////
          let y = await POSTRequest(`${HOSTNAME}/Content/Campus`,{stid:x.data[0].Studentid,currentDate:curDate})
+
+         if(y.data.length < 1)
+        {
+          setTColor("No trip found for today")
+          setAcces("red")
+          return
+        }
 
        dispatch(setMusic({"Origin":y.data[0].From,
                           "Destination":y.data[0].To,
                           "Date":y.data[0].Date,
                           "Time":y.data[0].Time}))   
         
-        // if(tripToken.length < 1)
-        // {
-        //   setTColor("No trip found for today")
-        //   setAcces("red")
-        //   return
-        // }
+        
         
 
         if(!timeCheckUp(y,setT,setTColor,setAcces))
@@ -103,17 +111,49 @@ function timeCheckUp(tripDetails,setColorErrT,setAccess,setColorSta)
       }
 }
 
-export default function Scan() {
+export default function Scan(navProps) {
   LogBox.ignoreLogs(['Setting a timer'])
 
-  
+  const [time, setTime] = useState();
+
+  let intv_Checker = navProps.route.params.checker
+  let hr
+  if(intv_Checker == "60")
+  {
+       hr = (new Date().getHours() + 1) + ":00";
+  }
+  else if(intv_Checker == "15")
+  {
+      let min = 15
+      if(new Date().getMinutes() > -1 && new Date().getMinutes() < 15 )
+      {
+        min = 15
+      }
+
+      if(new Date().getMinutes() > 15 || new Date().getMinutes() < 30 )
+      {
+        min = 30
+      }
+
+      if(new Date().getMinutes() > 30 || new Date().getMinutes() < 45 )
+      {
+        min = 45
+      }
+
+      if(new Date().getMinutes() > 45 || new Date().getMinutes() > 61)
+      {
+        min = "00"
+      }
+      
+      hr = new Date().getHours() + ":" +min;
+  }
 
   //Declaration
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [userMeta,setUserMeta] = useState();
   const [UserDetails, setUserDetails] = useState();
-  const hr = (new Date().getHours() + 1);
+  
   const navigation = useNavigation()
   const dispatch = useDispatch()
   const studentNumber = useSelector(selectStNumber);
@@ -213,7 +253,7 @@ export default function Scan() {
       /> 
       {
         scanned &&
-            <View style={styles.cover}>
+            <View style={[styles.cover,{borderRadius:20}]}>
                        {/*               Header                      */}
                     <View style={styles.admiter}>
                           <Text style={styles.adm}>Admin : {UserDetails}</Text>
@@ -221,18 +261,21 @@ export default function Scan() {
                             :14,color:"grey"}]}>Email : {userMeta}</Text>
                   </View>
                   <View style={[styles.admiter,{marginTop:0,backgroundColor:"black",height:30}]}>
-                          <Text style={[styles.adm,{color:"white",alignSelf:"center",fontSize:14}]}>Next Bus Going Time : {hr}:00 </Text>
+                          <Text style={[styles.adm,{color:"white",alignSelf:"center",fontSize:14}]}>Next Bus Going Time : {hr} </Text>
                   </View>
                   {/*                 Student Details                      */}
-                  <Image style = {{alignSelf:"center",width:200,height:200,marginTop:20,borderRadius:100}}  source={{uri:studentNumber?.profilepic}} />
+                  <Image style = {{alignSelf:"center",width:200,height:200,marginTop:20,borderRadius:100}}  source={{uri:studentNumber?.profilepic || "https://th.bing.com/th/id/R.cb331d845f324231c4b15f1c5f37d6f2?rik=QNYICo3KZ1EPJw&riu=http%3a%2f%2fcliparts.co%2fcliparts%2fBcg%2frng%2fBcgrngy7i.png&ehk=Jx5zgVOXdnslAd3UhPMRPR44PNthVLappLrl3ssZz4w%3d&risl=&pid=ImgRaw&r=0"}} />
          
      
                   <View style={styles.details}>
-                        <Text style={[styles.text,{fontSize:20,alignSelf:"center"}]}>{studentNumber?.firstName} {studentNumber?.lastName} ({studentNumber?.stNumber})</Text>                
+                                        
                         {
                             studentNumber?.email != null ?
                             (
-                              <Text style={[styles.text,{color:"black",alignSelf:"center",fontSize:14,}]}> {studentNumber?.email}</Text>
+								<View>
+									<Text style={[styles.text,{fontSize:20,alignSelf:"center"}]}>{studentNumber?.firstName} {studentNumber?.lastName} {studentNumber?.stNumber}</Text>
+									<Text style={[styles.text,{color:"black",alignSelf:"center",fontSize:14,}]}> {studentNumber?.email}</Text>
+								</View>
                             )
                             :
                               null
@@ -244,7 +287,7 @@ export default function Scan() {
                   {/*                 StudentTrips                             */}
                         
                   <View style={styles.passcard}>
-                        <Text style={{alignSelf:"center",color:"lightgrey"}}>Token is fetched based on your intrval checker</Text>
+                        <Text style={{alignSelf:"center",color:"lightgrey"}}>Token is fetched based on your interval checker</Text>
                         <Text style={[styles.text,{fontSize:17,color:"white"}]}>Depureture: {tripDetails?.Origin}<Text style={{color:colorErrO}}> •</Text></Text>
                         <Text style={[styles.text,{fontSize:17,color:"white"}]}>Destination: {tripDetails?.Destination}<Text style={{color:colorErrD}}> •</Text></Text>
                         <Text style={[styles.text,{fontSize:17,color:"white"}]}>Time : {tripDetails?.Time}<Text style={{color:colorErrT}}> •</Text></Text>
