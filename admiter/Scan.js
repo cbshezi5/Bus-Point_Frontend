@@ -125,22 +125,22 @@ export default function Scan(navProps) {
   else if(intv_Checker == "15")
   {
       let min = 15
-      if(new Date().getMinutes() > -1 && new Date().getMinutes() < 15 )
+      if(new Date().getMinutes() > 0 && new Date().getMinutes() < 15 )
       {
         min = 15
       }
 
-      if(new Date().getMinutes() > 15 || new Date().getMinutes() < 30 )
+      if(new Date().getMinutes() > 15 && new Date().getMinutes() < 30 )
       {
         min = 30
       }
 
-      if(new Date().getMinutes() > 30 || new Date().getMinutes() < 45 )
+      if(new Date().getMinutes() > 30 && new Date().getMinutes() < 45 )
       {
         min = 45
       }
 
-      if(new Date().getMinutes() > 45 || new Date().getMinutes() > 61)
+      if(new Date().getMinutes() > 45 && new Date().getMinutes() > 61)
       {
         min = "00"
       }
@@ -287,7 +287,8 @@ export default function Scan(navProps) {
                   {/*                 StudentTrips                             */}
                         
                   <View style={styles.passcard}>
-                        <Text style={{alignSelf:"center",color:"lightgrey"}}>Token is fetched based on your interval checker</Text>
+                        <Text style={{alignSelf:"center",color:"lightgrey"}}>System only approves for the next bus token.</Text>
+                        <Text style={{alignSelf:"center",color:"lightgrey"}}>only tokens for today are being retrived</Text>
                         <Text style={[styles.text,{fontSize:17,color:"white"}]}>Depureture: {tripDetails?.Origin}<Text style={{color:colorErrO}}> •</Text></Text>
                         <Text style={[styles.text,{fontSize:17,color:"white"}]}>Destination: {tripDetails?.Destination}<Text style={{color:colorErrD}}> •</Text></Text>
                         <Text style={[styles.text,{fontSize:17,color:"white"}]}>Time : {tripDetails?.Time}<Text style={{color:colorErrT}}> •</Text></Text>
