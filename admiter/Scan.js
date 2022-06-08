@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, LogBox,TouchableOpacity,BackHandler,Alert,Vibration,Image } from 'react-native';
+import { Text, View, StyleSheet, LogBox,TouchableOpacity,BackHandler,Alert,Vibration,Image,ImageBackground } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation } from '@react-navigation/core';
 import { useDispatch,useSelector } from 'react-redux';
@@ -251,6 +251,7 @@ export default function Scan(navProps) {
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       /> 
+      <ImageBackground source={require('../assets/scan.png')} style={{position:"absolute",alignSelf:"center",flex:1,width:500,height:500}}></ImageBackground>
       {
         scanned &&
             <View style={[styles.cover,{borderRadius:20}]}>
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     borderRadius:50
   },
   cover:{
