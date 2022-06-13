@@ -124,8 +124,9 @@ export default function Scan(navProps) {
   }
   else if(intv_Checker == "15")
   {
-      let min = 15
-      if(new Date().getMinutes() > 0 && new Date().getMinutes() < 15 )
+      let min
+      hr = new Date().getHours()
+      if(new Date().getMinutes() > -1 && new Date().getMinutes() < 15 )
       {
         min = 15
       }
@@ -140,12 +141,13 @@ export default function Scan(navProps) {
         min = 45
       }
 
-      if(new Date().getMinutes() > 45 && new Date().getMinutes() > 61)
+      if(new Date().getMinutes() > 45 && new Date().getMinutes() < 60)
       {
         min = "00"
+        hr += 1
       }
       
-      hr = new Date().getHours() + ":" +min;
+      hr += ":" +min;
   }
 
   //Declaration
