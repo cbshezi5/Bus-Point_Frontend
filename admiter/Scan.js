@@ -57,12 +57,13 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
          ////////////////////////////////Trip Detail retriving//////////////////////////////////////
          let y = await POSTRequest(`${HOSTNAME}/Content/Campus`,{stid:x.data[0].Studentid,currentDate:curDate})
 
-         if(y.data.length < 1)
+        if(y.data.length < 1)
         {
           setTColor("No trip found for today")
           setAcces("red")
           return
         }
+        
 
        dispatch(setMusic({"Origin":y.data[0].From,
                           "Destination":y.data[0].To,
