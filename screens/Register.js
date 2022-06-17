@@ -105,6 +105,7 @@ const Register = () => {
     const [idNumberErr, setidNumberErr] = useState(String())
     const [passwordErr, setPasswordErr] = useState(String(""))
     const [selectedCamp,setSelectedCamp] = useState(String(""))
+    const [idNumberValidator,setIdNumberValidator] = useState({color:"red",error:true,message:""})
 
     const [otpDetails,setOTPDetails] = useState({})
     const [campuses, setCampuses] = useState([]);
@@ -116,7 +117,6 @@ const Register = () => {
 
     useEffect(async ()=>{
         let x =  await GETRequest(`${HOSTNAME}/Content/Campus`)
-        console.log(x)
         setCampuses(x?.data)
     },[])
 
@@ -410,6 +410,63 @@ const Register = () => {
         //setStep(3)
     }
 
+    function CheckIdNumber(e)
+    {
+        let age 
+
+        if(String(e).length <= 5)
+        {
+            setIdNumberValidator({color:"yellow",error:true,message:""})
+        }
+
+        if(String(e).length >= 6)
+        {
+            let thisYear = new Date().getFullYear()
+            let dob = String(e).substring(0,2)
+            if(dob > 0 && dob < 22 || dob == "00")
+            {
+                dob = "20"+dob
+            } 
+            else
+            {
+                dob = "19"+dob
+            }
+            age = thisYear - dob
+           
+            setIdNumberValidator({color:"blue",error:true,message:age+" Years old"})
+        }
+        let gender
+        if(String(e).length >= 7)
+        {
+            
+            if(e[6] <= 5)
+            {
+                gender="Male"
+                setIdNumberValidator({color:"orange",error:true,message:age+" Years old Male"})
+            }
+            else
+            {
+                gender="Female"
+                setIdNumberValidator({color:"orange",error:true,message:age+" Years old Female"})
+            }  
+        }
+
+        if(String(e).length >= 11)
+        {
+            
+            if(e[10] == 1)
+            {
+                setIdNumberValidator({color:"green",error:true,message:age+" Years old "+gender+" Citizen"})
+            }
+            else
+            {
+                setIdNumberValidator({color:"green",error:true,message:age+" Years old "+gender+" Non Citizen"})
+            }
+            
+        }
+        
+    }
+
     function backStep()
     {
         setStep(1)
@@ -475,8 +532,9 @@ const Register = () => {
                     autoCapitalize="none"
                     keyboardType='number-pad'
                     value ={idNumber}
-                    onChangeText={(e)=>{setidNumber(e)}}
+                    onChangeText={(e)=>{setidNumber(e),CheckIdNumber(e)}}
                     />
+                    <Text style={{marginLeft:53,color:idNumberValidator.color,marginBottom:-10}}>{idNumberValidator.message}</Text>
                     <Text style={{marginLeft:53,color:"red",marginBottom:-10}}>{idNumberErr}</Text>
 
                     
