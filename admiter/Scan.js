@@ -29,7 +29,7 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
         let x = await PUTRequest(`${HOSTNAME}/Content/Campus`,{stNumber:studentNumber})
 
 
-        if(x.data.length < 1)
+        if(!x.data)
         {
           setTColor("Student not found")
           setAcces("red")
@@ -38,11 +38,11 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
                           "Date":"",
                           "Time":""}))  
 						  
-			dispatch(setStNumber({"firstName":"",
-                         "lastName":"",
-                         "stNumber":"",
-                         "email":"",
-                         "profilepic":""}))
+          dispatch(setStNumber({"firstName":"",
+                            "lastName":"",
+                            "stNumber":"",
+                            "email":"",
+                            "profilepic":""}))
           return
         }
 
@@ -60,6 +60,10 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
         if(y.data.length < 1)
         {
           setTColor("No trip found for today")
+          dispatch(setMusic({"Origin":"",
+                          "Destination":"",
+                          "Date":"",
+                          "Time":""})) 
           setAcces("red")
           return
         }
