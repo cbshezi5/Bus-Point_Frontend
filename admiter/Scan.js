@@ -15,7 +15,7 @@ async function getUserDet(setUserDetails,setUserMeta,setUsername) {
     setUsername(userdata[0].Email)
 }
 
-const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,setO,setD,setT,setTColor,setAcces) {
+const doUserQuery = async function (studentNumber,dispatch,setStNumber,Time,setT,setTColor,setAcces) {
 
   let arrayVal;
   let curDate = new Date()
@@ -77,7 +77,7 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
         
         
 
-        if(!timeCheckUp(y,setT,setTColor,setAcces))
+        if(!timeCheckUp(y,Time,setT,setTColor,setAcces))
         {
           return
         }
@@ -91,15 +91,9 @@ const doUserQuery = async function (studentNumber,dispatch,setStNumber,route,set
     
 }
 
-function timeCheckUp(tripDetails,setColorErrT,setAccess,setColorSta)
+function timeCheckUp(tripDetails,Time,setColorErrT,setAccess,setColorSta)
   {
-    
-    let tripTimeHr 
-      if(tripDetails[0]?.Time != null)
-      {
-        tripTimeHr = tripDetails[0]?.Time.substr(0,tripDetails[0]?.Time.indexOf(':'))
-       
-        if(tripTimeHr == (new Date().getHours() + 1))
+        if(tripDetails.data[0].Time == Time)
         {
           setAccess("Accept")
           setColorSta("lightgreen")
@@ -113,7 +107,7 @@ function timeCheckUp(tripDetails,setColorErrT,setAccess,setColorSta)
           setColorErrT("red")
           return false
         }
-      }
+      
 }
 
 export default function Scan(navProps) {
@@ -232,7 +226,7 @@ export default function Scan(navProps) {
                           "Time":"Loading..."})) 
 
     setScanned(true);
-    doUserQuery(data,dispatch,setStNumber,route,setColorErrO,setColorErrD,setColorErrT,setAccess,setColorSta)
+    doUserQuery(data,dispatch,setStNumber,hr,setColorErrT,setAccess,setColorSta)
     
     Vibration.vibrate(40)
   };
