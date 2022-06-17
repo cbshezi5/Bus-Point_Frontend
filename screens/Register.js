@@ -113,6 +113,7 @@ const Register = () => {
     const [step, setStep] = useState(1)
     const [fontsloaded, setFontsLoaded] = useState(false);
     const navigation = useNavigation()
+    var age 
 
 
     useEffect(async ()=>{
@@ -368,6 +369,16 @@ const Register = () => {
             setidNumberErr("")
         }
 
+        if(age > 40)
+        {
+            ToastAndroid.show("Too old for registration of bus point",500)
+            setidNumberErr("Invalid ID number")
+            return
+        }
+        else
+        {
+            setidNumberErr("")
+        }
 
         let generated_otp = generateRandomNumber().toString()
         
@@ -412,7 +423,7 @@ const Register = () => {
 
     function CheckIdNumber(e)
     {
-        let age 
+        
 
         if(String(e).length <= 5)
         {
@@ -456,11 +467,11 @@ const Register = () => {
             
             if(e[10] == 1)
             {
-                setIdNumberValidator({color:"green",error:true,message:age+" Years old "+gender+" Citizen"})
+                setIdNumberValidator({color:"green",error:true,message:age+" Years old "+gender+" Non Citizen"})
             }
             else
             {
-                setIdNumberValidator({color:"green",error:true,message:age+" Years old "+gender+" Non Citizen"})
+                setIdNumberValidator({color:"green",error:true,message:age+" Years old "+gender+"  Citizen"})
             }
             
         }
