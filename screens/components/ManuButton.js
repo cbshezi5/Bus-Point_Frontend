@@ -74,6 +74,12 @@ const ManuButton = () => {
         {
             navigation.navigate("Update",{email:Lemail})
         }
+
+        if(button == 'C')
+        {
+            //Clear all trips
+        }
+
         setVisible(false)
     };
 
@@ -103,16 +109,11 @@ const ManuButton = () => {
                                 onRequestClose={hideMenu}
                             >
                                 <MenuItem onPress={()=>hideMenu("U")}>Update Your Profile</MenuItem>
-                                <MenuItem onPress={()=>hideMenu("D")}>Delete this Profile</MenuItem>
                                 <MenuItem onPress={()=>hideMenu("C")}>Clear all Trips</MenuItem>
                                 <MenuDivider />
                                 <MenuItem onPress={()=>hideMenu("L")}>Logout</MenuItem>
                             </Menu>
                         </View>
-
-                            {/* <TouchableOpacity  onPress={()=>{LogOut(navigation)}}>
-                                <Text style={styles.buttons}>Logout</Text>
-                            </TouchableOpacity> */}
 
                             <Text style={{color:"white",fontSize:40,marginTop:-39,marginLeft:114}}>•</Text>
                             <TouchableOpacity style={{width:120,marginLeft:150,marginTop:-40}} onPress={()=>{navigation.navigate("CurrentTrip")}}>
