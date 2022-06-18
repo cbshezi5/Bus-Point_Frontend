@@ -380,6 +380,15 @@ const Register = () => {
             setidNumberErr("")
         }
 
+        let responseCheck = await POSTRequest(`${HOSTNAME}/Auth/Forgotten`,{email:email})
+
+        if(!responseCheck.error)
+        {
+            ToastAndroid.show("Login if you own this email",500)
+            setEmailErr("Email already exist")
+            return
+        }
+
         let generated_otp = generateRandomNumber().toString()
         
         let response = await GETRequest(`${HOSTNAME}/sendEmail?email=${email}&otp=${generated_otp}`)
@@ -394,7 +403,7 @@ const Register = () => {
     function toStepThree()
     {
         Vibration.vibrate(70)
-        console.log(selectedCamp)
+
         if(selectedCamp == "default")
         {
             setPasswordErr("Select a campus")
@@ -545,8 +554,8 @@ const Register = () => {
                     value ={idNumber}
                     onChangeText={(e)=>{setidNumber(e),CheckIdNumber(e)}}
                     />
-                    <Text style={{marginLeft:53,color:idNumberValidator.color,marginBottom:-10}}>{idNumberValidator.message}</Text>
-                    <Text style={{marginLeft:53,color:"red",marginBottom:-10}}>{idNumberErr}</Text>
+                    <Text style={{marginLeft:53,color:idNumberValidator.color,marginBottom:0}}>{idNumberValidator.message}</Text>
+                    <Text style={{marginLeft:53,color:"red",marginBottom:0}}>{idNumberErr}</Text>
 
                     
                     <TouchableOpacity style={{alignSelf:"center",marginTop:60}} onPress={()=>{toStepTwo()}}>
