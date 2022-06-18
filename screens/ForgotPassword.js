@@ -39,14 +39,14 @@ const ForgotPassword = () => {
             <Text style={{alignSelf:"center",fontSize:30,marginBottom:70}}>Resetting Password</Text>
             <Text style={{alignSelf:"center",fontSize:14}}>Enter your email address on the field below</Text>
             <Text style={{alignSelf:"center",fontSize:14}}>and then press 'Request password reset'</Text>
-            <Text style={{alignSelf:"center",fontSize:14}}>after that a email with the link to </Text>
-            <Text style={{alignSelf:"center",fontSize:14}}>reset your email will be sent</Text>
-            <Text style={{alignSelf:"center",fontSize:14}}>Follow the steps provided</Text>
+            <Text style={{alignSelf:"center",fontSize:14}}>Follow the steps provided </Text>
+            <Text style={{alignSelf:"center",fontSize:14}}>This is only for students</Text>
+       
 
             <TextInput
                 style={styles.input}
                 value={email}
-                placeholder={'Stuff / Student number'}
+                placeholder={'Student email'}
                 onChangeText={(text) => setEmail(text)}
                 autoCapitalize={'none'}
                 keyboardType={'email-address'}
