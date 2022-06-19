@@ -34,12 +34,16 @@ async function getUserDet(setUserDetails,LsetEmail,dispatch) {
 async function clearBooks() {
     let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
 
-    let x = await PUTRequest(`${HOSTNAME}/Student/ClearAll`)
+    let x = await PUTRequest(`${HOSTNAME}/Student/ClearAll`,{"id":userdata[0].Studentid})
+
+    
 
     if(x.error)
     {
         ToastAndroid.show("Oop couldn't clear your booking please try again later",500)
     }
+
+    ToastAndroid.show("Successfully cleared all your bookings",500)
 
 }
 
@@ -125,7 +129,7 @@ const ManuButton = () => {
                                 onRequestClose={hideMenu}
                             >
                                 <MenuItem onPress={()=>hideMenu("U")}>Update Your Profile</MenuItem>
-                                <MenuItem onPress={()=>hideMenu("C")}>Clear all Trips</MenuItem>
+                                <MenuItem onPress={()=>hideMenu("C")}>Clear all bookings</MenuItem>
                                 <MenuDivider />
                                 <MenuItem onPress={()=>hideMenu("L")}>Logout</MenuItem>
                             </Menu>
@@ -133,7 +137,7 @@ const ManuButton = () => {
 
                             <Text style={{color:"white",fontSize:40,marginTop:-39,marginLeft:114}}>•</Text>
                             <TouchableOpacity style={{width:120,marginLeft:150,marginTop:-40}} onPress={()=>{navigation.navigate("CurrentTrip")}}>
-                                <Text style={styles.buttons}>Current Trip</Text>
+                                <Text style={styles.buttons}>My Bookings</Text>
                             </TouchableOpacity>
                     </View>
                     </View>

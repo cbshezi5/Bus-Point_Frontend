@@ -113,7 +113,7 @@ const Confirm = () => {
                 )
                 :
                 <View>
-                    <Text style={{alignSelf:"center",marginTop:80,marginBottom:-53}}>Double click to cornfirm</Text>
+                    <Text style={{alignSelf:"center",marginTop:80,marginBottom:-53}}>Click to cornfirm</Text>
                         <TouchableOpacity style={[styles.btnYes,{}]} onPress={()=>{qrScreen()}}>
                             <Text style={{alignSelf:"center",fontSize:19}}>Yes</Text>
                         </TouchableOpacity>

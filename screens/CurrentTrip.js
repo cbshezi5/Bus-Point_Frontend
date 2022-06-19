@@ -25,7 +25,7 @@ const CurrentTrip = ()  => {
     return (
         <View style={styles.tittleHeard}>
             <View style={styles.tittleBox}>
-                <Text style={styles.tittle}>Current Trip </Text>
+                <Text style={styles.tittle}>My Bookings </Text>
                 <Text style={styles.subTittle}>Click on the trip to open the QR code</Text>
             </View>
             <ScrollView style={{marginTop:12}}>
