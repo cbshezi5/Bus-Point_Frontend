@@ -6,14 +6,11 @@ import { setStNumber,setLastName,setEmail,setFirstName,selectFirstName,selectLas
 import { useDispatch,useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-import { GETRequest,DELETERequest } from './../../Request'
+import { GETRequest,DELETERequest,PUTRequest } from './../../Request'
 import { HOSTNAME } from '../../globals'
+
 async function LogOut(navigation) {
-    
-    // await AsyncStorage.removeItem("@user_data")
-    // .then(()=>{
         navigation.navigate("Login")
-    // })
 }
 
 async function getUserDet(setUserDetails,LsetEmail,dispatch) {
@@ -32,11 +29,20 @@ async function getUserDet(setUserDetails,LsetEmail,dispatch) {
         dispatch(setFirstName(x.data[0].Firstname))
         dispatch(setLastName(x.data[0].Lastname))
     }  
-    
-    
-    
-    
+
 }
+async function clearBooks() {
+    let userdata = JSON.parse(await AsyncStorage.getItem("@user_data"))
+
+    let x = await PUTRequest(`${HOSTNAME}/Student/ClearAll`)
+
+    if(x.error)
+    {
+        ToastAndroid.show("Oop couldn't clear your booking please try again later",500)
+    }
+
+}
+
 
 const ManuButton = () => {
     const [manuOpenned, setManuOpenned] = useState(false)
@@ -78,6 +84,16 @@ const ManuButton = () => {
         if(button == 'C')
         {
             //Clear all trips
+            Alert.alert(
+                'Clear Bookings?',
+                'Are you sure you would like to clear all your booked buses?',
+                [
+                  { text: "Cancel", style: 'cancel', onPress: () => {} },
+                  { text: 'Clear',style: 'destructive',onPress: () => {
+                        clearBooks()
+                  } },
+                ]
+              );
         }
 
         setVisible(false)
