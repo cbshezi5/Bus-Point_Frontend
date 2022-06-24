@@ -5,7 +5,7 @@ import { getFirestore,collection} from "firebase/firestore";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCBd8fRuc7VJMmD7aC-70e-aeJ1d_SN1oU",
+    apiKey: "",
     authDomain: "bus-point-376ef.firebaseapp.com",
     projectId: "bus-point-376ef",
     storageBucket: "bus-point-376ef.appspot.com",
